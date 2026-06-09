@@ -6,8 +6,8 @@
 //
 //	import "github.com/laserlemon/cru"
 //
-//	// Compute a 250-LOC pull request's CRU, 100% owned by the reviewer, low risk:
-//	score := cru.Calculate(250, 250, cru.RiskLow)
+//	// A 250-LOC pull request, the reviewer owns 100 LOC of it, low risk:
+//	score := cru.Calculate(250, 100, cru.RiskLow)
 //
 //	// The size value carries both its factor and its label:
 //	sz := cru.CalculateSize(250)

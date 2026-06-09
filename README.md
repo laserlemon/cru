@@ -27,8 +27,8 @@ go get github.com/laserlemon/cru
 ```go
 import "github.com/laserlemon/cru"
 
-// A 250-LOC pull request, 100% owned by the reviewer, low risk.
-cru.Calculate(250, 250, cru.RiskLow) // => 3.4499...
+// A 250-LOC pull request, the reviewer owns 100 LOC of it, low risk.
+cru.Calculate(250, 100, cru.RiskLow) // => 1.3800...
 
 // The size value carries both its factor and its label.
 sz := cru.CalculateSize(250)
