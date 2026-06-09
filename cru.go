@@ -6,14 +6,13 @@
 //
 //	import "github.com/laserlemon/cru"
 //
-//	// Score a 250-LOC PR, 100% owned by the reviewer, low risk:
-//	score := cru.Score(250, 1.0, cru.RiskLow)
+//	// Compute a 250-LOC PR's CRU, 100% owned by the reviewer, low risk:
+//	score := cru.Calculate(cru.SizeOf(250), 1.0, cru.RiskLow)
 //
-//	// Just the size factor (input to your own composition):
-//	sf := cru.SizeFactor(250)
-//
-//	// T-shirt bucket label:
-//	bucket := cru.Bucket(250) // -> cru.SizeXL
+//	// The size value carries both its factor and its label:
+//	sz := cru.SizeOf(250)
+//	fmt.Println(sz)            // "XL"
+//	fmt.Println(float64(sz))   // 2.4379... (the size factor)
 //
 // All constants come from a locked log-normal fit of merged PR sizes in a
 // large monolithic GitHub repository with thousands of individual
@@ -25,10 +24,10 @@
 // "foot" as a unit of measurement, the value of the unit is in the
 // unchanging standard, not in how closely it matches any current reality.
 //
-// CRU = size_factor × ownership_share × risk
+// CRU = size × ownership × risk
 //
-//	size_factor(L) = 2^(5·F(L) − 2.5)
-//	F(L) = Φ((ln L − μ) / σ)
+//	size(L) = 2^(5·F(L) − 2.5)
+//	F(L)    = Φ((ln L − μ) / σ)
 //
 // μ and σ are baked-in constants. Φ is the standard normal CDF.
 // L is the PR's LOC (additions + deletions).
@@ -45,24 +44,48 @@ const (
 	Mu    = 3.526665
 	Sigma = 1.867217
 
-	// Risk multipliers. Authors mark high-risk PRs; everything else is unit.
-	RiskLow  = 1.0
-	RiskHigh = 4.0
-
 	// FormulaVersion identifies this calibration. Bump on any constant change.
+	// Note: adding RiskMedium did not bump the version because no previously
+	// scored PR had a medium-risk label, so the locked baseline distribution
+	// and every historical score remain exactly reproducible.
 	FormulaVersion = "1.0.0"
 )
 
-// SizeFactor returns the size factor for a PR of the given LOC.
+// Size is a PR's size factor. The float64 value IS the factor used in the
+// CRU formula; the categorical label (XS/S/M/L/XL) is derived from a
+// floor-to-even quintile partition of the locked log-normal distribution
+// and surfaced via String().
+//
+// Construct via SizeOf. Direct float64 conversion (cru.Size(0.5)) is legal
+// but produces an arbitrary label via String() based on which bucket the
+// equivalent LOC falls into.
+type Size float64
+
+// String returns the t-shirt size label for s, derived from the LOC that
+// would produce this factor. Buckets are labels only; the formula does not
+// reference them.
+func (s Size) String() string {
+	// Invert SizeFactor: F = (log2(s) + sizeRange/2) / sizeRange, then look
+	// up the bucket by the LOC at percentile F. This keeps String honest:
+	// the label always matches what SizeOf would produce for the
+	// equivalent LOC.
+	if s <= 0 {
+		return string(sizes[0])
+	}
+	f := (math.Log2(float64(s)) + sizeRange/2) / sizeRange
+	loc := int(math.Round(math.Exp(Mu + Sigma*probit(f))))
+	return string(sizeLabel(loc))
+}
+
+// SizeOf returns the Size for a PR of the given LOC.
 //
 // Returns the bounded floor (2^-2.5 ≈ 0.177) at L ≤ 0 to keep the function
 // total: even a typo carries some context cost.
-func SizeFactor(loc int) float64 {
+func SizeOf(loc int) Size {
 	if loc <= 0 {
-		return math.Pow(2, -2.5)
+		return Size(math.Pow(2, -sizeRange/2))
 	}
-	f := percentile(float64(loc))
-	return math.Pow(2, 5*f-2.5)
+	return Size(math.Pow(2, sizeRange*percentile(float64(loc))-sizeRange/2))
 }
 
 // Percentile returns F(L) = Φ((ln L − μ) / σ), the PR's percentile rank in the
@@ -74,49 +97,122 @@ func Percentile(loc int) float64 {
 	return percentile(float64(loc))
 }
 
+// percentile is Φ((ln L − μ) / σ), the standard normal CDF of the
+// log-LOC z-score. Internal helper; callers use Percentile.
 func percentile(loc float64) float64 {
 	z := (math.Log(loc) - Mu) / Sigma
 	return 0.5 * (1 + math.Erf(z/math.Sqrt2))
 }
 
-// Score returns the full CRU for a single (reviewer, PR) pair.
-//
-//	cru = SizeFactor(loc) × ownership × risk
-//
-// ownership is owned_loc / total_loc in [0, 1].
-// risk is RiskLow (1.0) for low / unmarked PRs or RiskHigh (4.0) for high risk.
-func Score(loc int, ownership, risk float64) float64 {
-	return SizeFactor(loc) * ownership * risk
+// probit is Φ⁻¹, the inverse normal CDF. Used to derive bucket boundaries
+// from quintile probabilities. Implemented via the standard relation
+// Φ⁻¹(p) = √2 · erfinv(2p − 1).
+func probit(p float64) float64 {
+	return math.Sqrt2 * math.Erfinv(2*p-1)
 }
 
-// Size is a shirt-size bucket. Buckets are labels only; the formula does not
-// reference them. Boundaries are floored-to-even quintile boundaries of the
-// locked log-normal.
-type Size string
+// Risk is a PR's risk tier. Three values exist: RiskLow, RiskMedium,
+// RiskHigh. The interface is sealed (unexported isRisk method); external
+// packages cannot construct alternative Risk values.
+type Risk interface {
+	// Factor returns the risk multiplier (1.0 / 2.0 / 4.0).
+	Factor() float64
+	// String returns the tier label ("low" / "medium" / "high").
+	String() string
+	// isRisk is a sealing method. It exists only to prevent external types
+	// from satisfying Risk, ensuring the three canonical constants are the
+	// only valid instances.
+	isRisk()
+}
 
-const (
-	SizeXS Size = "XS"
-	SizeS  Size = "S"
-	SizeM  Size = "M"
-	SizeL  Size = "L"
-	SizeXL Size = "XL"
+// risk is the unexported concrete type backing the three Risk constants.
+type risk struct {
+	name   string
+	factor float64
+}
+
+func (r risk) Factor() float64 { return r.factor }
+func (r risk) String() string  { return r.name }
+func (r risk) isRisk()         {}
+
+// Risk tiers. Authors mark risk; everything else defaults to low. The
+// three tiers double at each step (1× → 2× → 4×), giving the same span
+// from low to high (4×) as exists between two adjacent size buckets.
+//
+// These are var rather than const because interface values cannot be
+// const in Go. External packages cannot construct alternative Risk
+// values (see the sealed Risk interface) but can technically reassign
+// these vars in-process; treat them as immutable.
+var (
+	RiskLow    Risk = risk{name: "low", factor: 1.0}
+	RiskMedium Risk = risk{name: "medium", factor: 2.0}
+	RiskHigh   Risk = risk{name: "high", factor: 4.0}
 )
 
-// Bucket returns the t-shirt bucket label for a given LOC.
+// Calculate returns the full CRU for a single (reviewer, PR) pair.
 //
-//	XS: (0, 6]      S: (6, 20]     M: (20, 54]
-//	L:  (54, 162]   XL: (162, ∞)
-func Bucket(loc int) Size {
-	switch {
-	case loc <= 6:
-		return SizeXS
-	case loc <= 20:
-		return SizeS
-	case loc <= 54:
-		return SizeM
-	case loc <= 162:
-		return SizeL
-	default:
-		return SizeXL
+//	CRU = size × ownership × risk
+//
+// size is typically SizeOf(loc). ownership is owned_loc / total_loc in
+// [0, 1]. risk is one of RiskLow, RiskMedium, RiskHigh.
+//
+// Panics if risk is nil. Pass cru.RiskLow explicitly for the default tier.
+func Calculate(size Size, ownership float64, risk Risk) float64 {
+	if risk == nil {
+		panic("cru: nil Risk; use RiskLow, RiskMedium, or RiskHigh")
 	}
+	return float64(size) * ownership * risk.Factor()
+}
+
+// --- bucket derivation ---------------------------------------------------
+
+// sizes is the canonical ordered list of bucket labels, smallest to
+// largest. Everything downstream (boundary count, quintile cut
+// probabilities, size factor range, SizeOf lookup) derives from this list
+// and len(sizes). Adding a bucket here automatically adjusts boundaries.
+var sizes = [...]bucketLabel{"XS", "S", "M", "L", "XL"}
+
+// bucketLabel is an internal alias; we don't export it because the public
+// surface speaks Size (the factor) and String (the label) together.
+type bucketLabel string
+
+// sizeRange is the doubling range of the size factor across the F axis.
+// SizeFactor = 2^(sizeRange · F − sizeRange/2), so a size factor spans
+// 2^(-sizeRange/2) at F=0 to 2^(sizeRange/2) at F=1. Equal to len(sizes)
+// for the locked 5-bucket calibration: every adjacent quintile median
+// represents a doubling of CRU.
+const sizeRange = float64(len(sizes))
+
+// sizeBoundaries holds the floored-to-even quintile boundaries of the
+// locked log-normal. sizeBoundaries[i] is the highest LOC that still
+// belongs to sizes[i]; anything above the last boundary is sizes[len-1].
+// Computed at init from Mu, Sigma, and len(sizes), so calibration
+// changes propagate to bucket cut points automatically.
+//
+// Each boundary is exp(μ + σ · Φ⁻¹(i/N)) for i in 1..N-1, then floored
+// down to the nearest even integer for human-friendly display.
+var sizeBoundaries [len(sizes) - 1]int
+
+func init() {
+	n := len(sizes)
+	for i := 1; i < n; i++ {
+		p := float64(i) / float64(n)
+		raw := math.Exp(Mu + Sigma*probit(p))
+		b := int(math.Floor(raw))
+		if b%2 != 0 {
+			b-- // floor to even
+		}
+		sizeBoundaries[i-1] = b
+	}
+}
+
+// sizeLabel returns the bucket label for a given LOC. Used by Size.String
+// to keep labels and SizeOf consistent.
+func sizeLabel(loc int) bucketLabel {
+	for i, b := range sizeBoundaries {
+		if loc <= b {
+			return sizes[i]
+		}
+	}
+	return sizes[len(sizes)-1]
 }

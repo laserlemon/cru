@@ -5,23 +5,25 @@ The canonical Go implementation of the Code Review Unit (CRU) formula.
 ```go
 import "github.com/laserlemon/cru"
 
-// Score a 250-LOC PR, 100% owned by the reviewer, low risk:
-score := cru.Score(250, 1.0, cru.RiskLow)
+// Compute a 250-LOC PR's CRU, 100% owned by the reviewer, low risk:
+cru.Calculate(cru.SizeOf(250), 1.0, cru.RiskLow)
 
-// Just the size factor (input to your own composition):
-sf := cru.SizeFactor(250)
+// The size value carries both its factor and its label:
+sz := cru.SizeOf(250)
+fmt.Println(sz)            // "XL"
+fmt.Println(float64(sz))   // 2.4379...
 
-// T-shirt bucket label for a PR:
-bucket := cru.Bucket(250) // -> cru.SizeXL
+// Percentile rank in the locked baseline:
+cru.Percentile(250)        // 0.802...
 ```
 
 ## Formula
 
 ```
-CRU = size_factor × ownership_share × risk
+CRU = size × ownership × risk
 
-size_factor(L) = 2^(5·F(L) − 2.5)
-F(L)           = Φ((ln L − μ) / σ)
+size(L) = 2^(5·F(L) − 2.5)
+F(L)    = Φ((ln L − μ) / σ)
 ```
 
 Where `μ = 3.526665` and `σ = 1.867217` come from a locked log-normal fit of
@@ -32,18 +34,28 @@ individual contributors.
 
 | Function | Purpose |
 |---|---|
-| `cru.SizeFactor(loc int) float64` | Just the size factor — bounded ~0.18 to ~5.66 |
-| `cru.Score(loc int, ownership, risk float64) float64` | Full CRU |
-| `cru.Bucket(loc int) cru.Size` | T-shirt label (XS / S / M / L / XL) |
+| `cru.SizeOf(loc int) Size` | Size factor + derived t-shirt label |
+| `cru.Calculate(size Size, ownership float64, risk Risk) float64` | Full CRU |
 | `cru.Percentile(loc int) float64` | PR's percentile rank in the baseline |
+
+| Type | Notes |
+|---|---|
+| `cru.Size` | `float64` named type. `String()` returns "XS"/"S"/"M"/"L"/"XL". |
+| `cru.Risk` | Sealed interface. The only valid values are the three constants below. |
 
 | Constant | Value | |
 |---|---|---|
 | `cru.Mu` | `3.526665` | |
 | `cru.Sigma` | `1.867217` | |
 | `cru.RiskLow` | `1.0` | default risk multiplier |
+| `cru.RiskMedium` | `2.0` | author-marked medium-risk PRs |
 | `cru.RiskHigh` | `4.0` | author-marked high-risk PRs |
 | `cru.FormulaVersion` | `"1.0.0"` | bump on any constant change |
+
+The shirt-size buckets (XS/S/M/L/XL) partition the locked log-normal into
+five equal-mass quintiles. Boundaries are derived at package init from
+`Mu`, `Sigma`, and `len(sizes)`, so calibration changes propagate
+automatically. Current cuts: (0, 6], (6, 20], (20, 54], (54, 162], (162, ∞).
 
 ## Stability
 
