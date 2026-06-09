@@ -111,16 +111,39 @@ func TestSizeStringLabels(t *testing.T) {
 		loc  int
 		want string
 	}{
-		{0, "XS"}, {1, "XS"}, {6, "XS"},
-		{7, "S"}, {20, "S"},
-		{21, "M"}, {54, "M"},
-		{55, "L"}, {162, "L"},
-		{163, "XL"}, {100_000, "XL"},
+		{0, SizeXS}, {1, SizeXS}, {6, SizeXS},
+		{7, SizeS}, {20, SizeS},
+		{21, SizeM}, {54, SizeM},
+		{55, SizeL}, {162, SizeL},
+		{163, SizeXL}, {100_000, SizeXL},
 	}
 	for _, c := range cases {
 		got := CalculateSize(c.loc).String()
 		if got != c.want {
 			t.Errorf("CalculateSize(%d).String() = %q, want %q", c.loc, got, c.want)
+		}
+	}
+}
+
+// TestSizeConstants locks the exported size constants to the literal
+// strings Size.String() returns. Downstream code may switch on these
+// strings, so changing them is a breaking change that should require
+// editing this test deliberately.
+func TestSizeConstants(t *testing.T) {
+	cases := []struct {
+		name string
+		got  string
+		want string
+	}{
+		{"SizeXS", SizeXS, "XS"},
+		{"SizeS", SizeS, "S"},
+		{"SizeM", SizeM, "M"},
+		{"SizeL", SizeL, "L"},
+		{"SizeXL", SizeXL, "XL"},
+	}
+	for _, c := range cases {
+		if c.got != c.want {
+			t.Errorf("%s = %q, want %q", c.name, c.got, c.want)
 		}
 	}
 }

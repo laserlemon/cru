@@ -46,6 +46,7 @@ individual contributors.
 | `cru.RiskLow` | `1.0` | default risk multiplier |
 | `cru.RiskMedium` | `2.0` | author-marked medium-risk PRs |
 | `cru.RiskHigh` | `4.0` | author-marked high-risk PRs |
+| `cru.SizeXS` / `SizeS` / `SizeM` / `SizeL` / `SizeXL` | `"XS"` / `"S"` / `"M"` / `"L"` / `"XL"` | the exact strings `Size.String()` returns; switch on these in downstream code |
 
 The shirt-size buckets (XS/S/M/L/XL) partition the locked log-normal into
 five equal-mass quintiles. Boundaries are derived at package init from

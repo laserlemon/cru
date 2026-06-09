@@ -64,11 +64,11 @@ func (s Size) String() string {
 	// the label always matches what CalculateSize would produce for the
 	// equivalent LOC.
 	if s <= 0 {
-		return string(sizes[0])
+		return sizes[0]
 	}
 	f := (math.Log2(float64(s)) + sizeRange/2) / sizeRange
 	loc := int(math.Round(math.Exp(Mu + Sigma*probit(f))))
-	return string(sizeLabel(loc))
+	return sizeLabel(loc)
 }
 
 // CalculateSize returns the Size for a PR of the given LOC.
@@ -163,15 +163,23 @@ func Calculate(totalLOC, ownedLOC int, risk Risk) float64 {
 
 // --- bucket derivation ---------------------------------------------------
 
+// Size labels. These are exactly the strings returned by Size.String() and
+// are the only valid bucket label values. Untyped string constants so they
+// drop into any string context (switch cases, JSON, formatting) without
+// conversion.
+const (
+	SizeXS = "XS"
+	SizeS  = "S"
+	SizeM  = "M"
+	SizeL  = "L"
+	SizeXL = "XL"
+)
+
 // sizes is the canonical ordered list of bucket labels, smallest to
 // largest. Everything downstream (boundary count, quintile cut
 // probabilities, size factor range, CalculateSize lookup) derives from this list
 // and len(sizes). Adding a bucket here automatically adjusts boundaries.
-var sizes = [...]bucketLabel{"XS", "S", "M", "L", "XL"}
-
-// bucketLabel is an internal alias; we don't export it because the public
-// surface speaks Size (the factor) and String (the label) together.
-type bucketLabel string
+var sizes = [...]string{SizeXS, SizeS, SizeM, SizeL, SizeXL}
 
 // sizeRange is the doubling range of the size factor across the F axis.
 // Size = 2^(sizeRange · F − sizeRange/2), so a size factor spans
@@ -205,7 +213,7 @@ func init() {
 
 // sizeLabel returns the bucket label for a given LOC. Used by Size.String
 // to keep labels and CalculateSize consistent.
-func sizeLabel(loc int) bucketLabel {
+func sizeLabel(loc int) string {
 	for i, b := range sizeBoundaries {
 		if loc <= b {
 			return sizes[i]
