@@ -43,12 +43,6 @@ const (
 	// contributors.
 	Mu    = 3.526665
 	Sigma = 1.867217
-
-	// FormulaVersion identifies this calibration. Bump on any constant change.
-	// Note: adding RiskMedium did not bump the version because no previously
-	// scored PR had a medium-risk label, so the locked baseline distribution
-	// and every historical score remain exactly reproducible.
-	FormulaVersion = "1.0.0"
 )
 
 // Size is a PR's size factor. The float64 value IS the factor used in the
