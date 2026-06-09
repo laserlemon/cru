@@ -106,6 +106,18 @@ func TestSizeBoundariesDerived(t *testing.T) {
 	}
 }
 
+// TestSizeStringNonPositive covers the Size <= 0 early return in
+// String(). A directly-constructed Size of 0 or negative falls outside
+// the formula's domain and is labeled XS by convention.
+func TestSizeStringNonPositive(t *testing.T) {
+	if got := Size(0).String(); got != SizeXS {
+		t.Errorf("Size(0).String() = %q, want %q", got, SizeXS)
+	}
+	if got := Size(-1).String(); got != SizeXS {
+		t.Errorf("Size(-1).String() = %q, want %q", got, SizeXS)
+	}
+}
+
 func TestSizeStringLabels(t *testing.T) {
 	cases := []struct {
 		loc  int

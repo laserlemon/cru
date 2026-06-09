@@ -26,3 +26,21 @@ jobs:
       - run: go build ./...
       - run: go vet ./...
       - run: go test -race ./...
+
+  coverage:
+    name: coverage (100%)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: go test -coverprofile=cover.out ./...
+      - name: enforce 100% statement coverage
+        run: |
+          total=$(go tool cover -func=cover.out | awk '/^total:/ {print $3}')
+          echo "total coverage: $total"
+          if [ "$total" != "100.0%" ]; then
+            echo "::error::coverage $total fell below the required 100.0% bar"
+            exit 1
+          fi
