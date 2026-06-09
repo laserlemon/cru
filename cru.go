@@ -85,22 +85,16 @@ func SizeOf(loc int) Size {
 	if loc <= 0 {
 		return Size(math.Pow(2, -sizeRange/2))
 	}
-	return Size(math.Pow(2, sizeRange*percentile(float64(loc))-sizeRange/2))
+	return Size(math.Pow(2, sizeRange*Percentile(loc)-sizeRange/2))
 }
 
 // Percentile returns F(L) = Φ((ln L − μ) / σ), the PR's percentile rank in the
-// locked baseline distribution. Exposed for explainability / debugging.
+// locked baseline distribution. Returns 0 at L ≤ 0.
 func Percentile(loc int) float64 {
 	if loc <= 0 {
 		return 0
 	}
-	return percentile(float64(loc))
-}
-
-// percentile is Φ((ln L − μ) / σ), the standard normal CDF of the
-// log-LOC z-score. Internal helper; callers use Percentile.
-func percentile(loc float64) float64 {
-	z := (math.Log(loc) - Mu) / Sigma
+	z := (math.Log(float64(loc)) - Mu) / Sigma
 	return 0.5 * (1 + math.Erf(z/math.Sqrt2))
 }
 
