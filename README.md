@@ -1,6 +1,6 @@
 # laserlemon/cru
 
-The canonical Go implementation of the [Code Review Unit (CRU)](https://github.com/laserlemon/gh-cru#what-is-cru) formula.
+The canonical Go implementation of the Code Review Unit (CRU) formula.
 
 [![Made by laserlemon](https://img.shields.io/badge/laser-lemon-fc0?style=flat-square)](https://github.com/laserlemon)
 [![Latest tag](https://img.shields.io/github/v/tag/laserlemon/cru?style=flat-square&label=tag)](https://github.com/laserlemon/cru/tags)
