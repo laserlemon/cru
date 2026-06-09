@@ -127,19 +127,19 @@ func TestSizeStringLabels(t *testing.T) {
 
 func TestCalculateComposition(t *testing.T) {
 	loc := 34 // ≈ anchor
-	sz := SizeOf(loc)
+	sf := float64(SizeOf(loc))
 	// Single owner, low risk: CRU == size factor.
 	closeTo(t, "single owner low risk",
-		Calculate(sz, 1.0, RiskLow), float64(sz), 1e-12)
+		Calculate(loc, 1.0, RiskLow), sf, 1e-12)
 	// 50% ownership halves it.
 	closeTo(t, "50% owner",
-		Calculate(sz, 0.5, RiskLow), float64(sz)*0.5, 1e-12)
+		Calculate(loc, 0.5, RiskLow), sf*0.5, 1e-12)
 	// Medium risk 2x.
 	closeTo(t, "medium risk",
-		Calculate(sz, 1.0, RiskMedium), float64(sz)*2, 1e-12)
+		Calculate(loc, 1.0, RiskMedium), sf*2, 1e-12)
 	// High risk 4x.
 	closeTo(t, "high risk",
-		Calculate(sz, 1.0, RiskHigh), float64(sz)*4, 1e-12)
+		Calculate(loc, 1.0, RiskHigh), sf*4, 1e-12)
 }
 
 func TestCalculatePanicsOnNilRisk(t *testing.T) {
@@ -158,7 +158,7 @@ func TestCalculatePanicsOnNilRisk(t *testing.T) {
 			t.Errorf("panic message = %q, want it to mention \"nil Risk\"", msg)
 		}
 	}()
-	_ = Calculate(SizeOf(100), 1.0, nil)
+	_ = Calculate(100, 1.0, nil)
 }
 
 func TestRiskTiers(t *testing.T) {

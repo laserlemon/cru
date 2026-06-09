@@ -6,7 +6,7 @@ The canonical Go implementation of the Code Review Unit (CRU) formula.
 import "github.com/laserlemon/cru"
 
 // Compute a 250-LOC PR's CRU, 100% owned by the reviewer, low risk:
-cru.Calculate(cru.SizeOf(250), 1.0, cru.RiskLow)
+cru.Calculate(250, 1.0, cru.RiskLow)
 
 // The size value carries both its factor and its label:
 sz := cru.SizeOf(250)
@@ -35,7 +35,7 @@ individual contributors.
 | Function | Purpose |
 |---|---|
 | `cru.SizeOf(loc int) Size` | Size factor + derived t-shirt label |
-| `cru.Calculate(size Size, ownership float64, risk Risk) float64` | Full CRU |
+| `cru.Calculate(loc int, ownership float64, risk Risk) float64` | Full CRU |
 | `cru.Percentile(loc int) float64` | PR's percentile rank in the baseline |
 
 | Type | Notes |

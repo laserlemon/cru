@@ -7,7 +7,7 @@
 //	import "github.com/laserlemon/cru"
 //
 //	// Compute a 250-LOC PR's CRU, 100% owned by the reviewer, low risk:
-//	score := cru.Calculate(cru.SizeOf(250), 1.0, cru.RiskLow)
+//	score := cru.Calculate(250, 1.0, cru.RiskLow)
 //
 //	// The size value carries both its factor and its label:
 //	sz := cru.SizeOf(250)
@@ -151,17 +151,17 @@ var (
 
 // Calculate returns the full CRU for a single (reviewer, PR) pair.
 //
-//	CRU = size × ownership × risk
+//	CRU = SizeOf(loc) × ownership × risk
 //
-// size is typically SizeOf(loc). ownership is owned_loc / total_loc in
-// [0, 1]. risk is one of RiskLow, RiskMedium, RiskHigh.
+// ownership is owned_loc / total_loc in [0, 1]. risk is one of RiskLow,
+// RiskMedium, RiskHigh.
 //
 // Panics if risk is nil. Pass cru.RiskLow explicitly for the default tier.
-func Calculate(size Size, ownership float64, risk Risk) float64 {
+func Calculate(loc int, ownership float64, risk Risk) float64 {
 	if risk == nil {
 		panic("cru: nil Risk; use RiskLow, RiskMedium, or RiskHigh")
 	}
-	return float64(size) * ownership * risk.Factor()
+	return float64(SizeOf(loc)) * ownership * risk.Factor()
 }
 
 // --- bucket derivation ---------------------------------------------------
