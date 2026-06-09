@@ -34,18 +34,18 @@ func TestSizeFactorDoublingTargets(t *testing.T) {
 	}
 	for _, c := range cases {
 		// Invert F to get the LOC corresponding to the percentile, then
-		// re-apply SizeOf.
+		// re-apply CalculateSize.
 		// L = exp(μ + σ · Φ⁻¹(p))
 		z := probit(c.percentile)
 		loc := math.Exp(Mu + Sigma*z)
 		// Closed-form check against the formula.
 		got := math.Pow(2, 5*c.percentile-2.5)
 		closeTo(t, "doubling target", got, c.want, 1e-12)
-		// Sanity: SizeOf on the actual rounded LOC is close (we lose a
+		// Sanity: CalculateSize on the actual rounded LOC is close (we lose a
 		// hair to the discrete integer cast).
-		sz := SizeOf(int(math.Round(loc)))
+		sz := CalculateSize(int(math.Round(loc)))
 		if math.Abs(float64(sz)-c.want) > 0.01 {
-			t.Errorf("SizeOf(%d) = %v, want ≈ %v (off by %.4f)",
+			t.Errorf("CalculateSize(%d) = %v, want ≈ %v (off by %.4f)",
 				int(math.Round(loc)), float64(sz), c.want, float64(sz)-c.want)
 		}
 	}
@@ -54,30 +54,30 @@ func TestSizeFactorDoublingTargets(t *testing.T) {
 func TestSizeAnchor(t *testing.T) {
 	// CRU(median LOC) = 1.0; median of the lognormal is exp(μ).
 	loc := int(math.Round(math.Exp(Mu)))
-	closeTo(t, "anchor", float64(SizeOf(loc)), 1.0, 0.01)
+	closeTo(t, "anchor", float64(CalculateSize(loc)), 1.0, 0.01)
 }
 
 func TestSizeBounds(t *testing.T) {
 	floor := math.Pow(2, -2.5)
 	ceil := math.Pow(2, 2.5)
-	closeTo(t, "floor at 0", float64(SizeOf(0)), floor, 1e-12)
-	closeTo(t, "floor at -1", float64(SizeOf(-1)), floor, 1e-12)
-	if float64(SizeOf(1)) <= floor {
-		t.Errorf("SizeOf(1) should be above floor, got %v", SizeOf(1))
+	closeTo(t, "floor at 0", float64(CalculateSize(0)), floor, 1e-12)
+	closeTo(t, "floor at -1", float64(CalculateSize(-1)), floor, 1e-12)
+	if float64(CalculateSize(1)) <= floor {
+		t.Errorf("CalculateSize(1) should be above floor, got %v", CalculateSize(1))
 	}
-	huge := float64(SizeOf(10_000_000))
+	huge := float64(CalculateSize(10_000_000))
 	if huge >= ceil {
-		t.Errorf("SizeOf(10M) should be below ceiling %v, got %v", ceil, huge)
+		t.Errorf("CalculateSize(10M) should be below ceiling %v, got %v", ceil, huge)
 	}
 	if ceil-huge > 0.001 {
-		t.Errorf("SizeOf(10M) should be very close to ceiling %v, got %v", ceil, huge)
+		t.Errorf("CalculateSize(10M) should be very close to ceiling %v, got %v", ceil, huge)
 	}
 }
 
 func TestSizeMonotonic(t *testing.T) {
-	prev := SizeOf(0)
+	prev := CalculateSize(0)
 	for loc := 1; loc <= 5000; loc++ {
-		curr := SizeOf(loc)
+		curr := CalculateSize(loc)
 		if curr < prev {
 			t.Errorf("not monotonic at loc=%d: %v < %v", loc, curr, prev)
 		}
@@ -118,16 +118,16 @@ func TestSizeStringLabels(t *testing.T) {
 		{163, "XL"}, {100_000, "XL"},
 	}
 	for _, c := range cases {
-		got := SizeOf(c.loc).String()
+		got := CalculateSize(c.loc).String()
 		if got != c.want {
-			t.Errorf("SizeOf(%d).String() = %q, want %q", c.loc, got, c.want)
+			t.Errorf("CalculateSize(%d).String() = %q, want %q", c.loc, got, c.want)
 		}
 	}
 }
 
 func TestCalculateComposition(t *testing.T) {
 	loc := 34 // ≈ anchor
-	sf := float64(SizeOf(loc))
+	sf := float64(CalculateSize(loc))
 	// Single owner, low risk: CRU == size factor.
 	closeTo(t, "single owner low risk",
 		Calculate(loc, loc, RiskLow), sf, 1e-12)
@@ -177,7 +177,7 @@ func TestCalculateEdges(t *testing.T) {
 		t.Errorf("Calculate(100, -10, low) = %v, want 0", got)
 	}
 	// ownedLOC > totalLOC clamps to totalLOC; CRU equals 100%-owned CRU.
-	want := float64(SizeOf(100)) * RiskLow.Factor()
+	want := float64(CalculateSize(100)) * RiskLow.Factor()
 	if got := Calculate(100, 200, RiskLow); got != want {
 		t.Errorf("Calculate(100, 200, low) = %v, want %v (clamped)", got, want)
 	}

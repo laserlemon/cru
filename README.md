@@ -9,7 +9,7 @@ import "github.com/laserlemon/cru"
 cru.Calculate(250, 250, cru.RiskLow)
 
 // The size value carries both its factor and its label:
-sz := cru.SizeOf(250)
+sz := cru.CalculateSize(250)
 fmt.Println(sz)            // "XL"
 fmt.Println(float64(sz))   // 3.4499...
 ```
@@ -31,7 +31,7 @@ individual contributors.
 
 | Function | Purpose |
 |---|---|
-| `cru.SizeOf(loc int) Size` | Size factor + derived t-shirt label |
+| `cru.CalculateSize(loc int) Size` | Size factor + derived t-shirt label |
 | `cru.Calculate(totalLOC, ownedLOC int, risk Risk) float64` | Full CRU |
 
 | Type | Notes |

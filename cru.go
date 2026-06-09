@@ -10,7 +10,7 @@
 //	score := cru.Calculate(250, 250, cru.RiskLow)
 //
 //	// The size value carries both its factor and its label:
-//	sz := cru.SizeOf(250)
+//	sz := cru.CalculateSize(250)
 //	fmt.Println(sz)            // "XL"
 //	fmt.Println(float64(sz))   // 3.4499... (the size factor)
 //
@@ -56,7 +56,7 @@ const (
 // floor-to-even quintile partition of the locked log-normal distribution
 // and surfaced via String().
 //
-// Construct via SizeOf. Direct float64 conversion (cru.Size(0.5)) is legal
+// Construct via CalculateSize. Direct float64 conversion (cru.Size(0.5)) is legal
 // but produces an arbitrary label via String() based on which bucket the
 // equivalent LOC falls into.
 type Size float64
@@ -67,7 +67,7 @@ type Size float64
 func (s Size) String() string {
 	// Invert size factor: F = (log2(s) + sizeRange/2) / sizeRange, then look
 	// up the bucket by the LOC at percentile F. This keeps String honest:
-	// the label always matches what SizeOf would produce for the
+	// the label always matches what CalculateSize would produce for the
 	// equivalent LOC.
 	if s <= 0 {
 		return string(sizes[0])
@@ -77,11 +77,11 @@ func (s Size) String() string {
 	return string(sizeLabel(loc))
 }
 
-// SizeOf returns the Size for a PR of the given LOC.
+// CalculateSize returns the Size for a PR of the given LOC.
 //
 // Returns the bounded floor (2^-2.5 ≈ 0.177) at L ≤ 0 to keep the function
 // total: even a typo carries some context cost.
-func SizeOf(loc int) Size {
+func CalculateSize(loc int) Size {
 	if loc <= 0 {
 		return Size(math.Pow(2, -sizeRange/2))
 	}
@@ -141,7 +141,7 @@ var (
 
 // Calculate returns the full CRU for a single (reviewer, PR) pair.
 //
-//	CRU = SizeOf(totalLOC) × (ownedLOC / totalLOC) × risk
+//	CRU = CalculateSize(totalLOC) × (ownedLOC / totalLOC) × risk
 //
 // totalLOC is the PR's full additions + deletions. ownedLOC is the
 // portion this reviewer is responsible for (their CODEOWNERS-matched
@@ -164,14 +164,14 @@ func Calculate(totalLOC, ownedLOC int, risk Risk) float64 {
 		ownedLOC = totalLOC
 	}
 	share := float64(ownedLOC) / float64(totalLOC)
-	return float64(SizeOf(totalLOC)) * share * risk.Factor()
+	return float64(CalculateSize(totalLOC)) * share * risk.Factor()
 }
 
 // --- bucket derivation ---------------------------------------------------
 
 // sizes is the canonical ordered list of bucket labels, smallest to
 // largest. Everything downstream (boundary count, quintile cut
-// probabilities, size factor range, SizeOf lookup) derives from this list
+// probabilities, size factor range, CalculateSize lookup) derives from this list
 // and len(sizes). Adding a bucket here automatically adjusts boundaries.
 var sizes = [...]bucketLabel{"XS", "S", "M", "L", "XL"}
 
@@ -210,7 +210,7 @@ func init() {
 }
 
 // sizeLabel returns the bucket label for a given LOC. Used by Size.String
-// to keep labels and SizeOf consistent.
+// to keep labels and CalculateSize consistent.
 func sizeLabel(loc int) bucketLabel {
 	for i, b := range sizeBoundaries {
 		if loc <= b {
