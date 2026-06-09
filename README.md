@@ -12,8 +12,9 @@ distribution of real merged pull requests. The unit is stable across time:
 a CRU today and a CRU five years from now mean the same thing, the way a
 foot has always meant a foot.
 
-This package is the formula by itself. For a turnkey way to score real
-pull requests, see [`gh-cru`](https://github.com/laserlemon/gh-cru).
+This package is the formula by itself. To measure code review effort for
+GitHub pull requests, see [`gh-cru`](https://github.com/laserlemon/gh-cru),
+a GitHub CLI extension.
 
 ## Install
 
