@@ -106,6 +106,24 @@ func TestSizeBoundariesDerived(t *testing.T) {
 	}
 }
 
+// TestSizeFactor confirms Size.Factor() returns float64(s). Locks the
+// symmetry-with-Risk method to its trivial implementation so anyone
+// tempted to "do more" inside it (rounding, clamping, derivation) has
+// to update this test deliberately.
+func TestSizeFactor(t *testing.T) {
+	cases := []Size{0, -1, 0.25, 1.0, 3.4499, 5.66}
+	for _, s := range cases {
+		if got := s.Factor(); got != float64(s) {
+			t.Errorf("Size(%v).Factor() = %v, want %v", float64(s), got, float64(s))
+		}
+	}
+	// Spot-check against the CalculateSize pipeline.
+	sz := CalculateSize(250)
+	if sz.Factor() != float64(sz) {
+		t.Errorf("CalculateSize(250).Factor() = %v, want %v", sz.Factor(), float64(sz))
+	}
+}
+
 // TestSizeStringNonPositive covers the Size <= 0 early return in
 // String(). A directly-constructed Size of 0 or negative falls outside
 // the formula's domain and is labeled XS by convention.

@@ -12,7 +12,7 @@
 //	// The size value carries both its factor and its label:
 //	sz := cru.CalculateSize(250)
 //	fmt.Println(sz)            // "XL"
-//	fmt.Println(float64(sz))   // 3.4499... (the size factor)
+//	fmt.Println(sz.Factor())   // 3.4499... (the size factor)
 //
 // All constants come from a locked log-normal fit of merged pull request
 // sizes in a large monolithic GitHub repository with thousands of
@@ -48,12 +48,18 @@ const (
 // Size is a pull request's size factor. The float64 value IS the factor
 // used in the CRU formula; the categorical label (XS/S/M/L/XL) is derived
 // from a floor-to-even quintile partition of the locked log-normal
-// distribution and surfaced via String().
+// distribution and surfaced via String(). Read the factor via Factor(),
+// which is equivalent to float64(s).
 //
 // Construct via CalculateSize. Direct float64 conversion (cru.Size(0.5))
 // is legal but produces an arbitrary label via String() based on which
 // bucket the equivalent line count falls into.
 type Size float64
+
+// Factor returns the size multiplier used in the CRU formula. Equivalent
+// to float64(s); provided so Size and Risk read symmetrically (both have
+// Factor() and String()).
+func (s Size) Factor() float64 { return float64(s) }
 
 // String returns the t-shirt size label for s, derived from the line
 // count that would produce this factor. Buckets are labels only; the
