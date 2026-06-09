@@ -39,7 +39,7 @@ sz.String() // => "XL"
 ## Formula
 
 ```
-CRU = size × ownership × risk
+CRU = size factor × ownership share × risk factor
 
 size(L) = 2^(5·F(L) − 2.5)
 F(L)    = Φ((ln L − μ) / σ)
