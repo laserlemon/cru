@@ -85,28 +85,13 @@ func SizeOf(loc int) Size {
 	if loc <= 0 {
 		return Size(math.Pow(2, -sizeRange/2))
 	}
-	return Size(math.Pow(2, sizeRange*SizePercentileOf(loc)-sizeRange/2))
-}
-
-// SizePercentileOf returns F(L) = Φ((ln L − μ) / σ), the PR's percentile
-// rank in the locked baseline distribution of merged PR sizes. The size
-// factor is a doubling-rescaled function of this rank:
-//
-//	size(L) = 2^(sizeRange · F(L) − sizeRange/2)
-//
-// Useful for explainability (where does this PR sit in the reference
-// distribution?) and for downstream tooling that wants the raw rank
-// rather than the size factor. Returns 0 at L ≤ 0.
-//
-// Ownership and risk have no analogous percentile because ownership is
-// already a fraction in [0, 1] and risk is a discrete three-tier enum.
-// Only size has a continuous baseline distribution.
-func SizePercentileOf(loc int) float64 {
-	if loc <= 0 {
-		return 0
-	}
+	// F(L) = Φ((ln L − μ) / σ) is the PR's percentile rank in the locked
+	// baseline distribution of merged PR sizes. The size factor is a
+	// doubling-rescaled function of that rank, anchored so that the
+	// median PR (F = 0.5) scores exactly 1.
 	z := (math.Log(float64(loc)) - Mu) / Sigma
-	return 0.5 * (1 + math.Erf(z/math.Sqrt2))
+	f := 0.5 * (1 + math.Erf(z/math.Sqrt2))
+	return Size(math.Pow(2, sizeRange*f-sizeRange/2))
 }
 
 // probit is Φ⁻¹, the inverse normal CDF. Used to derive bucket boundaries

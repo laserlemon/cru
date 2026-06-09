@@ -12,10 +12,6 @@ cru.Calculate(250, 250, cru.RiskLow)
 sz := cru.SizeOf(250)
 fmt.Println(sz)            // "XL"
 fmt.Println(float64(sz))   // 3.4499...
-
-// Size percentile in the locked baseline (where this PR sits among
-// merged-PR LOCs):
-cru.SizePercentileOf(250)  // 0.857...
 ```
 
 ## Formula
@@ -37,7 +33,6 @@ individual contributors.
 |---|---|
 | `cru.SizeOf(loc int) Size` | Size factor + derived t-shirt label |
 | `cru.Calculate(totalLOC, ownedLOC int, risk Risk) float64` | Full CRU |
-| `cru.SizePercentileOf(loc int) float64` | PR's size rank in the baseline |
 
 | Type | Notes |
 |---|---|
