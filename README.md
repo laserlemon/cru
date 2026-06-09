@@ -24,8 +24,9 @@ size_factor(L) = 2^(5·F(L) − 2.5)
 F(L)           = Φ((ln L − μ) / σ)
 ```
 
-Where `μ = 3.526665` and `σ = 1.867217` come from the locked log-normal fit
-of github/github merged PRs before the Copilot rollout (n = 65,609).
+Where `μ = 3.526665` and `σ = 1.867217` come from a locked log-normal fit of
+merged PR sizes from a large monolithic GitHub repository with thousands of
+individual contributors.
 
 ## What you get
 

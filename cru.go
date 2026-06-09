@@ -15,9 +15,10 @@
 //	// T-shirt bucket label:
 //	bucket := cru.Bucket(250) // -> cru.SizeXL
 //
-// All constants come from the locked log-normal fit of github/github merged
-// PRs before the Copilot rollout. See the CALIBRATION docs in the gh-cru
-// repository for the derivation.
+// All constants come from a locked log-normal fit of merged PR sizes in a
+// large monolithic GitHub repository with thousands of individual
+// contributors. See the CALIBRATION docs in the gh-cru repository for the
+// derivation.
 //
 // The unit is intentionally stable: a "CRU" today and a "CRU" five years
 // from now both refer to the same fixed reference distribution. Like a
@@ -38,8 +39,9 @@ import "math"
 // Locked baseline. DO NOT CHANGE without bumping the formula version.
 // These values define what 1 CRU means.
 const (
-	// Mu (μ) and Sigma (σ) of the log-normal fit of pre-Copilot
-	// github/github merged PR sizes (n = 65,609; merged < 2025-05-23).
+	// Mu (μ) and Sigma (σ) of the log-normal fit of merged PR sizes from a
+	// large monolithic GitHub repository with thousands of individual
+	// contributors.
 	Mu    = 3.526665
 	Sigma = 1.867217
 
