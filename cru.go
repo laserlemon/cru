@@ -16,8 +16,7 @@
 //
 // All constants come from a locked log-normal fit of merged pull request
 // sizes in a large monolithic GitHub repository with thousands of
-// individual contributors. "Lines" throughout this package means
-// additions + deletions (the diff churn), not net lines added.
+// individual contributors.
 //
 // The unit is intentionally stable: a "CRU" today and a "CRU" five years
 // from now both refer to the same fixed reference distribution. Like a

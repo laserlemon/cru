@@ -36,9 +36,6 @@ sz.Factor() // => 3.4499...
 sz.String() // => "XL"
 ```
 
-"Lines" throughout this package means a pull request's diff churn:
-additions + deletions, not net lines added.
-
 ## Formula
 
 ```
@@ -48,10 +45,11 @@ size(L) = 2^(5·F(L) − 2.5)
 F(L)    = Φ((ln L − μ) / σ)
 ```
 
-`Φ` is the standard normal CDF. `L` is the pull request's line count.
-`μ = 3.526665` and `σ = 1.867217` are baked-in constants from a log-normal
-fit of merged pull request sizes in a large monolithic GitHub repository
-with thousands of individual contributors.
+`Φ` is the standard normal CDF. `L` is the pull request's line count
+(additions + deletions, i.e. total diff churn). `μ = 3.526665` and
+`σ = 1.867217` are baked-in constants from a log-normal fit of merged
+pull request sizes in a large monolithic GitHub repository with thousands
+of individual contributors.
 
 ## API
 
