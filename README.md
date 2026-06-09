@@ -1,17 +1,37 @@
 # cru
 
-The canonical Go implementation of the Code Review Unit (CRU) formula.
+The canonical Go implementation of the [Code Review Unit (CRU)](https://github.com/laserlemon/gh-cru#what-is-cru) formula.
+
+[![Made by laserlemon](https://img.shields.io/badge/laser-lemon-fc0?style=flat-square)](https://github.com/laserlemon)
+[![Latest tag](https://img.shields.io/github/v/tag/laserlemon/cru?style=flat-square&label=tag)](https://github.com/laserlemon/cru/tags)
+[![CI](https://img.shields.io/github/actions/workflow/status/laserlemon/cru/ci.yml?style=flat-square)](https://github.com/laserlemon/cru/actions/workflows/ci.yml)
+
+A CRU is a unit of code-review effort. One CRU equals the work of reviewing a
+typical PR, where "typical" is anchored to a locked reference distribution of
+real merged PRs. The unit is stable across time: a CRU today and a CRU five
+years from now mean the same thing, the way a foot has always meant a foot.
+
+This package is the formula by itself. For a turnkey way to score real PRs,
+see [`gh-cru`](https://github.com/laserlemon/gh-cru).
+
+## Install
+
+```bash
+go get github.com/laserlemon/cru
+```
+
+## Quick start
 
 ```go
 import "github.com/laserlemon/cru"
 
-// Compute a 250-LOC PR's CRU, 100% owned by the reviewer, low risk:
-cru.Calculate(250, 250, cru.RiskLow)
+// A 250-LOC PR, 100% owned by the reviewer, low risk.
+cru.Calculate(250, 250, cru.RiskLow) // => 3.4499...
 
-// The size value carries both its factor and its label:
+// The size value carries both its factor and its label.
 sz := cru.CalculateSize(250)
-fmt.Println(sz)            // "XL"
-fmt.Println(float64(sz))   // 3.4499...
+float64(sz) // => 3.4499...
+sz.String() // => "XL"
 ```
 
 ## Formula
@@ -23,54 +43,66 @@ size(L) = 2^(5·F(L) − 2.5)
 F(L)    = Φ((ln L − μ) / σ)
 ```
 
-Where `μ = 3.526665` and `σ = 1.867217` come from a locked log-normal fit of
-merged PR sizes from a large monolithic GitHub repository with thousands of
+`Φ` is the standard normal CDF. `L` is the PR's LOC (additions + deletions).
+`μ = 3.526665` and `σ = 1.867217` are baked-in constants from a log-normal fit
+of merged PR sizes in a large monolithic GitHub repository with thousands of
 individual contributors.
 
-## What you get
+## API
 
-| Function | Purpose |
+**Functions**
+
+| | |
 |---|---|
-| `cru.CalculateSize(loc int) Size` | Size factor + derived t-shirt label |
-| `cru.Calculate(totalLOC, ownedLOC int, risk Risk) float64` | Full CRU |
+| `cru.Calculate(totalLOC, ownedLOC int, risk Risk) float64` | Full CRU for one (reviewer, PR) pair |
+| `cru.CalculateSize(loc int) Size` | Size factor plus derived t-shirt label |
 
-| Type | Notes |
+**Types**
+
+| | |
 |---|---|
-| `cru.Size` | `float64` named type. `String()` returns `"XS"`/`"S"`/`"M"`/`"L"`/`"XL"`. |
-| `cru.Risk` | Sealed interface; only the three constants below satisfy it. Comparable via `==` and `switch`. |
+| `cru.Size` | `float64` named type; `String()` returns `"XS"`/`"S"`/`"M"`/`"L"`/`"XL"` |
+| `cru.Risk` | Sealed interface; only the three constants below satisfy it. Comparable via `==` and `switch` |
 
-| Calibration constant | Value |
+**Constants**
+
+```go
+cru.Mu    = 3.526665     // log-normal μ
+cru.Sigma = 1.867217     // log-normal σ
+
+cru.RiskLow    // factor 1.0, the default
+cru.RiskMedium // factor 2.0, author-marked
+cru.RiskHigh   // factor 4.0, author-marked
+
+cru.SizeXS // "XS"
+cru.SizeS  // "S"
+cru.SizeM  // "M"
+cru.SizeL  // "L"
+cru.SizeXL // "XL"
+```
+
+The size constants are exactly the strings `Size.String()` returns. Switch on
+them in downstream code instead of bare string literals.
+
+## Calibration
+
+The shirt-size buckets partition the locked log-normal into five equal-mass
+quintiles. Boundaries are derived at package init from `Mu`, `Sigma`, and the
+bucket count, so changing the calibration would propagate to bucket cuts
+automatically.
+
+| Bucket | LOC range |
 |---|---|
-| `cru.Mu` | `3.526665` |
-| `cru.Sigma` | `1.867217` |
+| XS | (0, 6] |
+| S | (6, 20] |
+| M | (20, 54] |
+| L | (54, 162] |
+| XL | (162, ∞) |
 
-| Risk constant | Factor |
-|---|---|
-| `cru.RiskLow` | `1.0` (default) |
-| `cru.RiskMedium` | `2.0` (author-marked) |
-| `cru.RiskHigh` | `4.0` (author-marked) |
-
-| Size constant | String |
-|---|---|
-| `cru.SizeXS` | `"XS"` |
-| `cru.SizeS` | `"S"` |
-| `cru.SizeM` | `"M"` |
-| `cru.SizeL` | `"L"` |
-| `cru.SizeXL` | `"XL"` |
-
-The size constants are exactly the strings `Size.String()` returns; switch
-on them in downstream code instead of bare string literals.
-
-The shirt-size buckets (XS/S/M/L/XL) partition the locked log-normal into
-five equal-mass quintiles. Boundaries are derived at package init from
-`Mu`, `Sigma`, and `len(sizes)`, so calibration changes propagate
-automatically. Current cuts: (0, 6], (6, 20], (20, 54], (54, 162], (162, ∞).
-
-## Stability
-
-The constants are locked. A "CRU" measured today and a "CRU" measured five
-years from now reference the same fixed baseline distribution, so trends in
-review effort are measurable rather than baked into the metric.
+The constants are locked on purpose. Like a foot, the value of the unit is in
+the unchanging standard, not in how closely it matches any current reality.
+Trends in review effort become measurable instead of getting absorbed into a
+moving baseline.
 
 ## License
 
