@@ -12,9 +12,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Floor declared in go.mod, plus the two majors Go currently supports.
-        # Bump as Go's release policy moves; drop 1.21 if/when the floor rises.
-        go: ["1.21", "1.25", "1.26"]
+        # Explicit floor-to-current coverage (1.21 is the go.mod floor, 1.26
+        # is current latest), plus `stable` so the matrix auto-picks up new
+        # Go releases without a config edit. When 1.27 drops, `stable` will
+        # cover it; the explicit list is only for older majors Go itself
+        # no longer supports but we still want to keep working.
+        go: ["1.21", "1.22", "1.23", "1.24", "1.25", "1.26", "stable"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
