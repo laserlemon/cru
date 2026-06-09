@@ -12,7 +12,7 @@
 //	// The size value carries both its factor and its label:
 //	sz := cru.SizeOf(250)
 //	fmt.Println(sz)            // "XL"
-//	fmt.Println(float64(sz))   // 2.4379... (the size factor)
+//	fmt.Println(float64(sz))   // 3.4499... (the size factor)
 //
 // All constants come from a locked log-normal fit of merged PR sizes in a
 // large monolithic GitHub repository with thousands of individual
@@ -65,7 +65,7 @@ type Size float64
 // would produce this factor. Buckets are labels only; the formula does not
 // reference them.
 func (s Size) String() string {
-	// Invert SizeFactor: F = (log2(s) + sizeRange/2) / sizeRange, then look
+	// Invert size factor: F = (log2(s) + sizeRange/2) / sizeRange, then look
 	// up the bucket by the LOC at percentile F. This keeps String honest:
 	// the label always matches what SizeOf would produce for the
 	// equivalent LOC.
@@ -171,7 +171,7 @@ var sizes = [...]bucketLabel{"XS", "S", "M", "L", "XL"}
 type bucketLabel string
 
 // sizeRange is the doubling range of the size factor across the F axis.
-// SizeFactor = 2^(sizeRange · F − sizeRange/2), so a size factor spans
+// Size = 2^(sizeRange · F − sizeRange/2), so a size factor spans
 // 2^(-sizeRange/2) at F=0 to 2^(sizeRange/2) at F=1. Equal to len(sizes)
 // for the locked 5-bucket calibration: every adjacent quintile median
 // represents a doubling of CRU.
