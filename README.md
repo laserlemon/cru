@@ -27,7 +27,7 @@ go get github.com/laserlemon/cru
 ```go
 import "github.com/laserlemon/cru"
 
-// A 250-LOC pull request, the reviewer owns 100 LOC of it, low risk.
+// A 250-line pull request, the reviewer owns 100 lines of it, low risk.
 cru.Calculate(250, 100, cru.RiskLow) // => 1.3800...
 
 // The size value carries both its factor and its label.
@@ -35,6 +35,9 @@ sz := cru.CalculateSize(250)
 float64(sz) // => 3.4499...
 sz.String() // => "XL"
 ```
+
+"Lines" throughout this package means a pull request's diff churn:
+additions + deletions, not net lines added.
 
 ## Formula
 
@@ -45,10 +48,10 @@ size(L) = 2^(5·F(L) − 2.5)
 F(L)    = Φ((ln L − μ) / σ)
 ```
 
-`Φ` is the standard normal CDF. `L` is the pull request's LOC (additions + deletions).
-`μ = 3.526665` and `σ = 1.867217` are baked-in constants from a log-normal fit
-of merged pull request sizes in a large monolithic GitHub repository with thousands of
-individual contributors.
+`Φ` is the standard normal CDF. `L` is the pull request's line count.
+`μ = 3.526665` and `σ = 1.867217` are baked-in constants from a log-normal
+fit of merged pull request sizes in a large monolithic GitHub repository
+with thousands of individual contributors.
 
 ## API
 
@@ -56,8 +59,8 @@ individual contributors.
 
 | | |
 |---|---|
-| `cru.Calculate(totalLOC, ownedLOC int, risk Risk) float64` | Full CRU for one (reviewer, pull request) pair |
-| `cru.CalculateSize(loc int) Size` | Size factor plus derived t-shirt label |
+| `cru.Calculate(totalLines, ownedLines int, risk Risk) float64` | Full CRU for one (reviewer, pull request) pair |
+| `cru.CalculateSize(lines int) Size` | Size factor plus derived t-shirt label |
 
 **Types**
 
@@ -93,7 +96,7 @@ quintiles. Boundaries are derived at package init from `Mu`, `Sigma`, and the
 bucket count, so changing the calibration would propagate to bucket cuts
 automatically.
 
-| Bucket | LOC range |
+| Bucket | Lines |
 |---|---|
 | XS | (0, 6] |
 | S | (6, 20] |

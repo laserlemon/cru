@@ -1,12 +1,12 @@
 // Package cru is the canonical implementation of the Code Review Unit (CRU)
-// formula. Import this package to score pull requests from your own Go programs without
-// pulling in the gh CLI extension wrapper.
+// formula. Import this package to score pull requests from your own Go
+// programs without pulling in the gh CLI extension wrapper.
 //
 // Quick start:
 //
 //	import "github.com/laserlemon/cru"
 //
-//	// A 250-LOC pull request, the reviewer owns 100 LOC of it, low risk:
+//	// A 250-line pull request, the reviewer owns 100 lines of it, low risk:
 //	score := cru.Calculate(250, 100, cru.RiskLow)
 //
 //	// The size value carries both its factor and its label:
@@ -14,9 +14,10 @@
 //	fmt.Println(sz)            // "XL"
 //	fmt.Println(float64(sz))   // 3.4499... (the size factor)
 //
-// All constants come from a locked log-normal fit of merged pull request sizes in a
-// large monolithic GitHub repository with thousands of individual
-// contributors.
+// All constants come from a locked log-normal fit of merged pull request
+// sizes in a large monolithic GitHub repository with thousands of
+// individual contributors. "Lines" throughout this package means
+// additions + deletions (the diff churn), not net lines added.
 //
 // The unit is intentionally stable: a "CRU" today and a "CRU" five years
 // from now both refer to the same fixed reference distribution. Like a
@@ -29,7 +30,7 @@
 //	F(L)    = Φ((ln L − μ) / σ)
 //
 // μ and σ are baked-in constants. Φ is the standard normal CDF.
-// L is the pull request's LOC (additions + deletions).
+// L is the pull request's line count (additions + deletions).
 package cru
 
 import "math"
@@ -37,52 +38,53 @@ import "math"
 // Locked baseline. DO NOT CHANGE without releasing a new major version.
 // These values define what 1 CRU means.
 const (
-	// Mu (μ) and Sigma (σ) of the log-normal fit of merged pull request sizes from a
-	// large monolithic GitHub repository with thousands of individual
-	// contributors.
+	// Mu (μ) and Sigma (σ) of the log-normal fit of merged pull request
+	// line counts from a large monolithic GitHub repository with
+	// thousands of individual contributors.
 	Mu    = 3.526665
 	Sigma = 1.867217
 )
 
-// Size is a pull request's size factor. The float64 value IS the factor used in the
-// CRU formula; the categorical label (XS/S/M/L/XL) is derived from a
-// floor-to-even quintile partition of the locked log-normal distribution
-// and surfaced via String().
+// Size is a pull request's size factor. The float64 value IS the factor
+// used in the CRU formula; the categorical label (XS/S/M/L/XL) is derived
+// from a floor-to-even quintile partition of the locked log-normal
+// distribution and surfaced via String().
 //
-// Construct via CalculateSize. Direct float64 conversion (cru.Size(0.5)) is legal
-// but produces an arbitrary label via String() based on which bucket the
-// equivalent LOC falls into.
+// Construct via CalculateSize. Direct float64 conversion (cru.Size(0.5))
+// is legal but produces an arbitrary label via String() based on which
+// bucket the equivalent line count falls into.
 type Size float64
 
-// String returns the t-shirt size label for s, derived from the LOC that
-// would produce this factor. Buckets are labels only; the formula does not
-// reference them.
+// String returns the t-shirt size label for s, derived from the line
+// count that would produce this factor. Buckets are labels only; the
+// formula does not reference them.
 func (s Size) String() string {
-	// Invert size factor: F = (log2(s) + sizeRange/2) / sizeRange, then look
-	// up the bucket by the LOC at percentile F. This keeps String honest:
-	// the label always matches what CalculateSize would produce for the
-	// equivalent LOC.
+	// Invert size factor: F = (log2(s) + sizeRange/2) / sizeRange, then
+	// look up the bucket by the line count at percentile F. This keeps
+	// String honest: the label always matches what CalculateSize would
+	// produce for the equivalent line count.
 	if s <= 0 {
 		return sizes[0]
 	}
 	f := (math.Log2(float64(s)) + sizeRange/2) / sizeRange
-	loc := int(math.Round(math.Exp(Mu + Sigma*probit(f))))
-	return sizeLabel(loc)
+	lines := int(math.Round(math.Exp(Mu + Sigma*probit(f))))
+	return sizeLabel(lines)
 }
 
-// CalculateSize returns the Size for a pull request of the given LOC.
+// CalculateSize returns the Size for a pull request of the given line
+// count (additions + deletions).
 //
-// Returns the bounded floor (2^-2.5 ≈ 0.177) at L ≤ 0 to keep the function
-// total: even a typo carries some context cost.
-func CalculateSize(loc int) Size {
-	if loc <= 0 {
+// Returns the bounded floor (2^-2.5 ≈ 0.177) at lines ≤ 0 to keep the
+// function total: even a typo carries some context cost.
+func CalculateSize(lines int) Size {
+	if lines <= 0 {
 		return Size(math.Pow(2, -sizeRange/2))
 	}
-	// F(L) = Φ((ln L − μ) / σ) is the pull request's percentile rank in the locked
-	// baseline distribution of merged pull request sizes. The size factor is a
-	// doubling-rescaled function of that rank, anchored so that the
-	// median pull request (F = 0.5) scores exactly 1.
-	z := (math.Log(float64(loc)) - Mu) / Sigma
+	// F(L) = Φ((ln L − μ) / σ) is the pull request's percentile rank in
+	// the locked baseline distribution of merged pull request sizes. The
+	// size factor is a doubling-rescaled function of that rank, anchored
+	// so that the median pull request (F = 0.5) scores exactly 1.
+	z := (math.Log(float64(lines)) - Mu) / Sigma
 	f := 0.5 * (1 + math.Erf(z/math.Sqrt2))
 	return Size(math.Pow(2, sizeRange*f-sizeRange/2))
 }
@@ -139,30 +141,30 @@ var (
 
 // Calculate returns the full CRU for a single (reviewer, pull request) pair.
 //
-//	CRU = CalculateSize(totalLOC) × (ownedLOC / totalLOC) × risk
+//	CRU = CalculateSize(totalLines) × (ownedLines / totalLines) × risk
 //
-// totalLOC is the pull request's full additions + deletions. ownedLOC is the
-// portion this reviewer is responsible for (their CODEOWNERS-matched
-// LOC, deduplicated across direct @login and team memberships). risk
+// totalLines is the pull request's full additions + deletions. ownedLines
+// is the portion this reviewer is responsible for (their CODEOWNERS-matched
+// lines, deduplicated across direct @login and team memberships). risk
 // is one of RiskLow, RiskMedium, RiskHigh.
 //
-// Returns 0 when totalLOC == 0. Clamps ownedLOC to [0, totalLOC] so
+// Returns 0 when totalLines == 0. Clamps ownedLines to [0, totalLines] so
 // callers can't double-count overlap or pass a negative share. Panics
 // if risk is nil; pass cru.RiskLow explicitly for the default tier.
-func Calculate(totalLOC, ownedLOC int, risk Risk) float64 {
+func Calculate(totalLines, ownedLines int, risk Risk) float64 {
 	if risk == nil {
 		panic("cru: nil Risk; use RiskLow, RiskMedium, or RiskHigh")
 	}
-	if totalLOC <= 0 {
+	if totalLines <= 0 {
 		return 0
 	}
-	if ownedLOC < 0 {
-		ownedLOC = 0
-	} else if ownedLOC > totalLOC {
-		ownedLOC = totalLOC
+	if ownedLines < 0 {
+		ownedLines = 0
+	} else if ownedLines > totalLines {
+		ownedLines = totalLines
 	}
-	share := float64(ownedLOC) / float64(totalLOC)
-	return float64(CalculateSize(totalLOC)) * share * risk.Factor()
+	share := float64(ownedLines) / float64(totalLines)
+	return float64(CalculateSize(totalLines)) * share * risk.Factor()
 }
 
 // --- bucket derivation ---------------------------------------------------
@@ -193,10 +195,10 @@ var sizes = [...]string{SizeXS, SizeS, SizeM, SizeL, SizeXL}
 const sizeRange = float64(len(sizes))
 
 // sizeBoundaries holds the floored-to-even quintile boundaries of the
-// locked log-normal. sizeBoundaries[i] is the highest LOC that still
-// belongs to sizes[i]; anything above the last boundary is sizes[len-1].
-// Computed at init from Mu, Sigma, and len(sizes), so calibration
-// changes propagate to bucket cut points automatically.
+// locked log-normal. sizeBoundaries[i] is the highest line count that
+// still belongs to sizes[i]; anything above the last boundary is
+// sizes[len-1]. Computed at init from Mu, Sigma, and len(sizes), so
+// calibration changes propagate to bucket cut points automatically.
 //
 // Each boundary is exp(μ + σ · Φ⁻¹(i/N)) for i in 1..N-1, then floored
 // down to the nearest even integer for human-friendly display.
@@ -215,11 +217,11 @@ func init() {
 	}
 }
 
-// sizeLabel returns the bucket label for a given LOC. Used by Size.String
-// to keep labels and CalculateSize consistent.
-func sizeLabel(loc int) string {
+// sizeLabel returns the bucket label for a given line count. Used by
+// Size.String to keep labels and CalculateSize consistent.
+func sizeLabel(lines int) string {
 	for i, b := range sizeBoundaries {
-		if loc <= b {
+		if lines <= b {
 			return sizes[i]
 		}
 	}

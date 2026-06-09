@@ -33,28 +33,28 @@ func TestSizeFactorDoublingTargets(t *testing.T) {
 		{0.9, 4.0},
 	}
 	for _, c := range cases {
-		// Invert F to get the LOC corresponding to the percentile, then
-		// re-apply CalculateSize.
+		// Invert F to get the line count corresponding to the percentile,
+		// then re-apply CalculateSize.
 		// L = exp(μ + σ · Φ⁻¹(p))
 		z := probit(c.percentile)
-		loc := math.Exp(Mu + Sigma*z)
+		lines := math.Exp(Mu + Sigma*z)
 		// Closed-form check against the formula.
 		got := math.Pow(2, 5*c.percentile-2.5)
 		closeTo(t, "doubling target", got, c.want, 1e-12)
-		// Sanity: CalculateSize on the actual rounded LOC is close (we lose a
-		// hair to the discrete integer cast).
-		sz := CalculateSize(int(math.Round(loc)))
+		// Sanity: CalculateSize on the actual rounded line count is close
+		// (we lose a hair to the discrete integer cast).
+		sz := CalculateSize(int(math.Round(lines)))
 		if math.Abs(float64(sz)-c.want) > 0.01 {
 			t.Errorf("CalculateSize(%d) = %v, want ≈ %v (off by %.4f)",
-				int(math.Round(loc)), float64(sz), c.want, float64(sz)-c.want)
+				int(math.Round(lines)), float64(sz), c.want, float64(sz)-c.want)
 		}
 	}
 }
 
 func TestSizeAnchor(t *testing.T) {
-	// CRU(median LOC) = 1.0; median of the lognormal is exp(μ).
-	loc := int(math.Round(math.Exp(Mu)))
-	closeTo(t, "anchor", float64(CalculateSize(loc)), 1.0, 0.01)
+	// CRU(median line count) = 1.0; median of the lognormal is exp(μ).
+	lines := int(math.Round(math.Exp(Mu)))
+	closeTo(t, "anchor", float64(CalculateSize(lines)), 1.0, 0.01)
 }
 
 func TestSizeBounds(t *testing.T) {
@@ -76,10 +76,10 @@ func TestSizeBounds(t *testing.T) {
 
 func TestSizeMonotonic(t *testing.T) {
 	prev := CalculateSize(0)
-	for loc := 1; loc <= 5000; loc++ {
-		curr := CalculateSize(loc)
+	for lines := 1; lines <= 5000; lines++ {
+		curr := CalculateSize(lines)
 		if curr < prev {
-			t.Errorf("not monotonic at loc=%d: %v < %v", loc, curr, prev)
+			t.Errorf("not monotonic at lines=%d: %v < %v", lines, curr, prev)
 		}
 		prev = curr
 	}
@@ -120,8 +120,8 @@ func TestSizeStringNonPositive(t *testing.T) {
 
 func TestSizeStringLabels(t *testing.T) {
 	cases := []struct {
-		loc  int
-		want string
+		lines int
+		want  string
 	}{
 		{0, SizeXS}, {1, SizeXS}, {6, SizeXS},
 		{7, SizeS}, {20, SizeS},
@@ -130,9 +130,9 @@ func TestSizeStringLabels(t *testing.T) {
 		{163, SizeXL}, {100_000, SizeXL},
 	}
 	for _, c := range cases {
-		got := CalculateSize(c.loc).String()
+		got := CalculateSize(c.lines).String()
 		if got != c.want {
-			t.Errorf("CalculateSize(%d).String() = %q, want %q", c.loc, got, c.want)
+			t.Errorf("CalculateSize(%d).String() = %q, want %q", c.lines, got, c.want)
 		}
 	}
 }
@@ -161,20 +161,20 @@ func TestSizeConstants(t *testing.T) {
 }
 
 func TestCalculateComposition(t *testing.T) {
-	loc := 34 // ≈ anchor
-	sf := float64(CalculateSize(loc))
+	lines := 34 // ≈ anchor
+	sf := float64(CalculateSize(lines))
 	// Single owner, low risk: CRU == size factor.
 	closeTo(t, "single owner low risk",
-		Calculate(loc, loc, RiskLow), sf, 1e-12)
+		Calculate(lines, lines, RiskLow), sf, 1e-12)
 	// 50% ownership halves it.
 	closeTo(t, "50% owner",
-		Calculate(loc, loc/2, RiskLow), sf*0.5, 1e-12)
+		Calculate(lines, lines/2, RiskLow), sf*0.5, 1e-12)
 	// Medium risk 2x.
 	closeTo(t, "medium risk",
-		Calculate(loc, loc, RiskMedium), sf*2, 1e-12)
+		Calculate(lines, lines, RiskMedium), sf*2, 1e-12)
 	// High risk 4x.
 	closeTo(t, "high risk",
-		Calculate(loc, loc, RiskHigh), sf*4, 1e-12)
+		Calculate(lines, lines, RiskHigh), sf*4, 1e-12)
 }
 
 func TestCalculatePanicsOnNilRisk(t *testing.T) {
@@ -197,21 +197,21 @@ func TestCalculatePanicsOnNilRisk(t *testing.T) {
 }
 
 // TestCalculateEdges covers the boundary behaviors of Calculate:
-// totalLOC=0 returns 0, negative ownedLOC clamps to 0, ownedLOC>totalLOC
-// clamps to totalLOC. Callers shouldn't have to pre-sanitize.
+// totalLines=0 returns 0, negative ownedLines clamps to 0, ownedLines >
+// totalLines clamps to totalLines. Callers shouldn't have to pre-sanitize.
 func TestCalculateEdges(t *testing.T) {
-	// totalLOC == 0 short-circuits to 0 (no pull request, no review effort).
+	// totalLines == 0 short-circuits to 0 (no pull request, no review effort).
 	if got := Calculate(0, 0, RiskLow); got != 0 {
 		t.Errorf("Calculate(0, 0, low) = %v, want 0", got)
 	}
 	if got := Calculate(0, 50, RiskHigh); got != 0 {
 		t.Errorf("Calculate(0, 50, high) = %v, want 0", got)
 	}
-	// Negative ownedLOC clamps to 0; CRU is 0 not negative.
+	// Negative ownedLines clamps to 0; CRU is 0 not negative.
 	if got := Calculate(100, -10, RiskLow); got != 0 {
 		t.Errorf("Calculate(100, -10, low) = %v, want 0", got)
 	}
-	// ownedLOC > totalLOC clamps to totalLOC; CRU equals 100%-owned CRU.
+	// ownedLines > totalLines clamps to totalLines; CRU equals 100%-owned CRU.
 	want := float64(CalculateSize(100)) * RiskLow.Factor()
 	if got := Calculate(100, 200, RiskLow); got != want {
 		t.Errorf("Calculate(100, 200, low) = %v, want %v (clamped)", got, want)
