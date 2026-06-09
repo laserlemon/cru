@@ -16,8 +16,7 @@
 //
 // All constants come from a locked log-normal fit of merged PR sizes in a
 // large monolithic GitHub repository with thousands of individual
-// contributors. See the CALIBRATION docs in the gh-cru repository for the
-// derivation.
+// contributors.
 //
 // The unit is intentionally stable: a "CRU" today and a "CRU" five years
 // from now both refer to the same fixed reference distribution. Like a
@@ -35,7 +34,7 @@ package cru
 
 import "math"
 
-// Locked baseline. DO NOT CHANGE without bumping the formula version.
+// Locked baseline. DO NOT CHANGE without releasing a new major version.
 // These values define what 1 CRU means.
 const (
 	// Mu (μ) and Sigma (σ) of the log-normal fit of merged PR sizes from a
@@ -122,6 +121,11 @@ func (r risk) isRisk()         {}
 // Risk tiers. Authors mark risk; everything else defaults to low. The
 // three tiers double at each step (1× → 2× → 4×), giving the same span
 // from low to high (4×) as exists between two adjacent size buckets.
+//
+// These values are comparable via == and switch: identity uniquely
+// identifies the tier (no fourth value can exist), so callers can write
+// switch r { case cru.RiskHigh: ... case cru.RiskMedium: ... default: ... }
+// and the default branch covers low exhaustively.
 //
 // These are var rather than const because interface values cannot be
 // const in Go. External packages cannot construct alternative Risk

@@ -36,17 +36,30 @@ individual contributors.
 
 | Type | Notes |
 |---|---|
-| `cru.Size` | `float64` named type. `String()` returns "XS"/"S"/"M"/"L"/"XL". |
-| `cru.Risk` | Sealed interface. The only valid values are the three constants below. |
+| `cru.Size` | `float64` named type. `String()` returns `"XS"`/`"S"`/`"M"`/`"L"`/`"XL"`. |
+| `cru.Risk` | Sealed interface; only the three constants below satisfy it. Comparable via `==` and `switch`. |
 
-| Constant | Value | |
-|---|---|---|
-| `cru.Mu` | `3.526665` | |
-| `cru.Sigma` | `1.867217` | |
-| `cru.RiskLow` | `1.0` | default risk multiplier |
-| `cru.RiskMedium` | `2.0` | author-marked medium-risk PRs |
-| `cru.RiskHigh` | `4.0` | author-marked high-risk PRs |
-| `cru.SizeXS` / `SizeS` / `SizeM` / `SizeL` / `SizeXL` | `"XS"` / `"S"` / `"M"` / `"L"` / `"XL"` | the exact strings `Size.String()` returns; switch on these in downstream code |
+| Calibration constant | Value |
+|---|---|
+| `cru.Mu` | `3.526665` |
+| `cru.Sigma` | `1.867217` |
+
+| Risk constant | Factor |
+|---|---|
+| `cru.RiskLow` | `1.0` (default) |
+| `cru.RiskMedium` | `2.0` (author-marked) |
+| `cru.RiskHigh` | `4.0` (author-marked) |
+
+| Size constant | String |
+|---|---|
+| `cru.SizeXS` | `"XS"` |
+| `cru.SizeS` | `"S"` |
+| `cru.SizeM` | `"M"` |
+| `cru.SizeL` | `"L"` |
+| `cru.SizeXL` | `"XL"` |
+
+The size constants are exactly the strings `Size.String()` returns; switch
+on them in downstream code instead of bare string literals.
 
 The shirt-size buckets (XS/S/M/L/XL) partition the locked log-normal into
 five equal-mass quintiles. Boundaries are derived at package init from
