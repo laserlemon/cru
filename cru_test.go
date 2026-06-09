@@ -130,16 +130,16 @@ func TestCalculateComposition(t *testing.T) {
 	sf := float64(SizeOf(loc))
 	// Single owner, low risk: CRU == size factor.
 	closeTo(t, "single owner low risk",
-		Calculate(loc, 1.0, RiskLow), sf, 1e-12)
+		Calculate(loc, loc, RiskLow), sf, 1e-12)
 	// 50% ownership halves it.
 	closeTo(t, "50% owner",
-		Calculate(loc, 0.5, RiskLow), sf*0.5, 1e-12)
+		Calculate(loc, loc/2, RiskLow), sf*0.5, 1e-12)
 	// Medium risk 2x.
 	closeTo(t, "medium risk",
-		Calculate(loc, 1.0, RiskMedium), sf*2, 1e-12)
+		Calculate(loc, loc, RiskMedium), sf*2, 1e-12)
 	// High risk 4x.
 	closeTo(t, "high risk",
-		Calculate(loc, 1.0, RiskHigh), sf*4, 1e-12)
+		Calculate(loc, loc, RiskHigh), sf*4, 1e-12)
 }
 
 func TestCalculatePanicsOnNilRisk(t *testing.T) {
@@ -158,7 +158,29 @@ func TestCalculatePanicsOnNilRisk(t *testing.T) {
 			t.Errorf("panic message = %q, want it to mention \"nil Risk\"", msg)
 		}
 	}()
-	_ = Calculate(100, 1.0, nil)
+	_ = Calculate(100, 100, nil)
+}
+
+// TestCalculateEdges covers the boundary behaviors of Calculate:
+// totalLOC=0 returns 0, negative ownedLOC clamps to 0, ownedLOC>totalLOC
+// clamps to totalLOC. Callers shouldn't have to pre-sanitize.
+func TestCalculateEdges(t *testing.T) {
+	// totalLOC == 0 short-circuits to 0 (no PR, no review effort).
+	if got := Calculate(0, 0, RiskLow); got != 0 {
+		t.Errorf("Calculate(0, 0, low) = %v, want 0", got)
+	}
+	if got := Calculate(0, 50, RiskHigh); got != 0 {
+		t.Errorf("Calculate(0, 50, high) = %v, want 0", got)
+	}
+	// Negative ownedLOC clamps to 0; CRU is 0 not negative.
+	if got := Calculate(100, -10, RiskLow); got != 0 {
+		t.Errorf("Calculate(100, -10, low) = %v, want 0", got)
+	}
+	// ownedLOC > totalLOC clamps to totalLOC; CRU equals 100%-owned CRU.
+	want := float64(SizeOf(100)) * RiskLow.Factor()
+	if got := Calculate(100, 200, RiskLow); got != want {
+		t.Errorf("Calculate(100, 200, low) = %v, want %v (clamped)", got, want)
+	}
 }
 
 func TestRiskTiers(t *testing.T) {

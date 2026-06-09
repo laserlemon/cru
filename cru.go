@@ -7,7 +7,7 @@
 //	import "github.com/laserlemon/cru"
 //
 //	// Compute a 250-LOC PR's CRU, 100% owned by the reviewer, low risk:
-//	score := cru.Calculate(250, 1.0, cru.RiskLow)
+//	score := cru.Calculate(250, 250, cru.RiskLow)
 //
 //	// The size value carries both its factor and its label:
 //	sz := cru.SizeOf(250)
@@ -145,17 +145,30 @@ var (
 
 // Calculate returns the full CRU for a single (reviewer, PR) pair.
 //
-//	CRU = SizeOf(loc) × ownership × risk
+//	CRU = SizeOf(totalLOC) × (ownedLOC / totalLOC) × risk
 //
-// ownership is owned_loc / total_loc in [0, 1]. risk is one of RiskLow,
-// RiskMedium, RiskHigh.
+// totalLOC is the PR's full additions + deletions. ownedLOC is the
+// portion this reviewer is responsible for (their CODEOWNERS-matched
+// LOC, deduplicated across direct @login and team memberships). risk
+// is one of RiskLow, RiskMedium, RiskHigh.
 //
-// Panics if risk is nil. Pass cru.RiskLow explicitly for the default tier.
-func Calculate(loc int, ownership float64, risk Risk) float64 {
+// Returns 0 when totalLOC == 0. Clamps ownedLOC to [0, totalLOC] so
+// callers can't double-count overlap or pass a negative share. Panics
+// if risk is nil; pass cru.RiskLow explicitly for the default tier.
+func Calculate(totalLOC, ownedLOC int, risk Risk) float64 {
 	if risk == nil {
 		panic("cru: nil Risk; use RiskLow, RiskMedium, or RiskHigh")
 	}
-	return float64(SizeOf(loc)) * ownership * risk.Factor()
+	if totalLOC <= 0 {
+		return 0
+	}
+	if ownedLOC < 0 {
+		ownedLOC = 0
+	} else if ownedLOC > totalLOC {
+		ownedLOC = totalLOC
+	}
+	share := float64(ownedLOC) / float64(totalLOC)
+	return float64(SizeOf(totalLOC)) * share * risk.Factor()
 }
 
 // --- bucket derivation ---------------------------------------------------
