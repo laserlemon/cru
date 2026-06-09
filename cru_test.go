@@ -200,7 +200,7 @@ func TestCalculatePanicsOnNilRisk(t *testing.T) {
 // totalLOC=0 returns 0, negative ownedLOC clamps to 0, ownedLOC>totalLOC
 // clamps to totalLOC. Callers shouldn't have to pre-sanitize.
 func TestCalculateEdges(t *testing.T) {
-	// totalLOC == 0 short-circuits to 0 (no PR, no review effort).
+	// totalLOC == 0 short-circuits to 0 (no pull request, no review effort).
 	if got := Calculate(0, 0, RiskLow); got != 0 {
 		t.Errorf("Calculate(0, 0, low) = %v, want 0", got)
 	}

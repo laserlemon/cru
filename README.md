@@ -6,13 +6,14 @@ The canonical Go implementation of the Code Review Unit (CRU) formula.
 [![Latest tag](https://img.shields.io/github/v/tag/laserlemon/cru?style=flat-square&label=tag)](https://github.com/laserlemon/cru/tags)
 [![CI](https://img.shields.io/github/actions/workflow/status/laserlemon/cru/ci.yml?style=flat-square)](https://github.com/laserlemon/cru/actions/workflows/ci.yml)
 
-A CRU is a unit of code-review effort. One CRU equals the work of reviewing a
-typical PR, where "typical" is anchored to a locked reference distribution of
-real merged PRs. The unit is stable across time: a CRU today and a CRU five
-years from now mean the same thing, the way a foot has always meant a foot.
+A CRU is a unit of code-review effort. One CRU equals the work of reviewing
+a typical pull request, where "typical" is anchored to a locked reference
+distribution of real merged pull requests. The unit is stable across time:
+a CRU today and a CRU five years from now mean the same thing, the way a
+foot has always meant a foot.
 
-This package is the formula by itself. For a turnkey way to score real PRs,
-see [`gh-cru`](https://github.com/laserlemon/gh-cru).
+This package is the formula by itself. For a turnkey way to score real
+pull requests, see [`gh-cru`](https://github.com/laserlemon/gh-cru).
 
 ## Install
 
@@ -25,7 +26,7 @@ go get github.com/laserlemon/cru
 ```go
 import "github.com/laserlemon/cru"
 
-// A 250-LOC PR, 100% owned by the reviewer, low risk.
+// A 250-LOC pull request, 100% owned by the reviewer, low risk.
 cru.Calculate(250, 250, cru.RiskLow) // => 3.4499...
 
 // The size value carries both its factor and its label.
@@ -43,9 +44,9 @@ size(L) = 2^(5·F(L) − 2.5)
 F(L)    = Φ((ln L − μ) / σ)
 ```
 
-`Φ` is the standard normal CDF. `L` is the PR's LOC (additions + deletions).
+`Φ` is the standard normal CDF. `L` is the pull request's LOC (additions + deletions).
 `μ = 3.526665` and `σ = 1.867217` are baked-in constants from a log-normal fit
-of merged PR sizes in a large monolithic GitHub repository with thousands of
+of merged pull request sizes in a large monolithic GitHub repository with thousands of
 individual contributors.
 
 ## API
@@ -54,7 +55,7 @@ individual contributors.
 
 | | |
 |---|---|
-| `cru.Calculate(totalLOC, ownedLOC int, risk Risk) float64` | Full CRU for one (reviewer, PR) pair |
+| `cru.Calculate(totalLOC, ownedLOC int, risk Risk) float64` | Full CRU for one (reviewer, pull request) pair |
 | `cru.CalculateSize(loc int) Size` | Size factor plus derived t-shirt label |
 
 **Types**

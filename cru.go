@@ -1,12 +1,12 @@
 // Package cru is the canonical implementation of the Code Review Unit (CRU)
-// formula. Import this package to score PRs from your own Go programs without
+// formula. Import this package to score pull requests from your own Go programs without
 // pulling in the gh CLI extension wrapper.
 //
 // Quick start:
 //
 //	import "github.com/laserlemon/cru"
 //
-//	// Compute a 250-LOC PR's CRU, 100% owned by the reviewer, low risk:
+//	// Compute a 250-LOC pull request's CRU, 100% owned by the reviewer, low risk:
 //	score := cru.Calculate(250, 250, cru.RiskLow)
 //
 //	// The size value carries both its factor and its label:
@@ -14,7 +14,7 @@
 //	fmt.Println(sz)            // "XL"
 //	fmt.Println(float64(sz))   // 3.4499... (the size factor)
 //
-// All constants come from a locked log-normal fit of merged PR sizes in a
+// All constants come from a locked log-normal fit of merged pull request sizes in a
 // large monolithic GitHub repository with thousands of individual
 // contributors.
 //
@@ -29,7 +29,7 @@
 //	F(L)    = Φ((ln L − μ) / σ)
 //
 // μ and σ are baked-in constants. Φ is the standard normal CDF.
-// L is the PR's LOC (additions + deletions).
+// L is the pull request's LOC (additions + deletions).
 package cru
 
 import "math"
@@ -37,14 +37,14 @@ import "math"
 // Locked baseline. DO NOT CHANGE without releasing a new major version.
 // These values define what 1 CRU means.
 const (
-	// Mu (μ) and Sigma (σ) of the log-normal fit of merged PR sizes from a
+	// Mu (μ) and Sigma (σ) of the log-normal fit of merged pull request sizes from a
 	// large monolithic GitHub repository with thousands of individual
 	// contributors.
 	Mu    = 3.526665
 	Sigma = 1.867217
 )
 
-// Size is a PR's size factor. The float64 value IS the factor used in the
+// Size is a pull request's size factor. The float64 value IS the factor used in the
 // CRU formula; the categorical label (XS/S/M/L/XL) is derived from a
 // floor-to-even quintile partition of the locked log-normal distribution
 // and surfaced via String().
@@ -70,7 +70,7 @@ func (s Size) String() string {
 	return sizeLabel(loc)
 }
 
-// CalculateSize returns the Size for a PR of the given LOC.
+// CalculateSize returns the Size for a pull request of the given LOC.
 //
 // Returns the bounded floor (2^-2.5 ≈ 0.177) at L ≤ 0 to keep the function
 // total: even a typo carries some context cost.
@@ -78,10 +78,10 @@ func CalculateSize(loc int) Size {
 	if loc <= 0 {
 		return Size(math.Pow(2, -sizeRange/2))
 	}
-	// F(L) = Φ((ln L − μ) / σ) is the PR's percentile rank in the locked
-	// baseline distribution of merged PR sizes. The size factor is a
+	// F(L) = Φ((ln L − μ) / σ) is the pull request's percentile rank in the locked
+	// baseline distribution of merged pull request sizes. The size factor is a
 	// doubling-rescaled function of that rank, anchored so that the
-	// median PR (F = 0.5) scores exactly 1.
+	// median pull request (F = 0.5) scores exactly 1.
 	z := (math.Log(float64(loc)) - Mu) / Sigma
 	f := 0.5 * (1 + math.Erf(z/math.Sqrt2))
 	return Size(math.Pow(2, sizeRange*f-sizeRange/2))
@@ -94,7 +94,7 @@ func probit(p float64) float64 {
 	return math.Sqrt2 * math.Erfinv(2*p-1)
 }
 
-// Risk is a PR's risk tier. Three values exist: RiskLow, RiskMedium,
+// Risk is a pull request's risk tier. Three values exist: RiskLow, RiskMedium,
 // RiskHigh. The interface is sealed (unexported isRisk method); external
 // packages cannot construct alternative Risk values.
 type Risk interface {
@@ -137,11 +137,11 @@ var (
 	RiskHigh   Risk = risk{name: "high", factor: 4.0}
 )
 
-// Calculate returns the full CRU for a single (reviewer, PR) pair.
+// Calculate returns the full CRU for a single (reviewer, pull request) pair.
 //
 //	CRU = CalculateSize(totalLOC) × (ownedLOC / totalLOC) × risk
 //
-// totalLOC is the PR's full additions + deletions. ownedLOC is the
+// totalLOC is the pull request's full additions + deletions. ownedLOC is the
 // portion this reviewer is responsible for (their CODEOWNERS-matched
 // LOC, deduplicated across direct @login and team memberships). risk
 // is one of RiskLow, RiskMedium, RiskHigh.
