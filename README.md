@@ -199,22 +199,24 @@ reality.
 The shirt-size labels (XS, S, M, L, XL) are quintiles of the locked
 distribution. The four cuts that separate them are the 20th, 40th,
 60th, and 80th percentiles, so every bucket holds about 20% of all
-pull requests:
+pull requests.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-log-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-log-light.png">
-  <img alt="The log-scaled distribution divided into five equal-mass quintiles, labeled XS through XL. Boundaries at p20, p40, p60, p80." src="/docs/img/quintiles-log-light.png">
-</picture>
-
-On a linear x-axis those quintile boundaries crowd into the left third
-of the chart, with XL claiming everything to the right. Same math,
-different view:
+On a linear x-axis the quintile boundaries crowd into the left third
+of the chart, with XL claiming everything to the right:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-linear-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-linear-light.png">
-  <img alt="The same five quintiles shown on a linear x-axis. XS, S, and M crowd the left edge; XL covers most of the visible range." src="/docs/img/quintiles-linear-light.png">
+  <img alt="Five equal-mass quintiles on a linear x-axis. XS, S, and M crowd the left edge; XL covers most of the visible range." src="/docs/img/quintiles-linear-light.png">
+</picture>
+
+Switch to a log x-axis and the bands fan out evenly across the
+distribution:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-log-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-log-light.png">
+  <img alt="The same five quintiles on a log-scaled x-axis. The bands now spread out evenly across the distribution." src="/docs/img/quintiles-log-light.png">
 </picture>
 
 ### Building the size factor, one axis at a time
@@ -227,21 +229,21 @@ floor, the ceiling) falls out of the math.
 
 Start with the picture from before, plus a dot at the median of each
 bucket sitting at its target size factor. The y-axis is the size factor
-itself, linear from 0 to 6:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-light.png">
-  <img alt="Step 1: log-LOC x-axis, linear size factor y-axis. Five colored dots at each bucket median, labeled with their target doubling factor: 0.25, 0.5, 1, 2, 4." src="/docs/img/derivation-frame1-light.png">
-</picture>
-
-Same dots, linear x-axis. The XS, S, and M dots all crush together on
-the left edge:
+itself, linear from 0 to 6. On a linear x-axis the XS, S, and M dots
+all crush together on the left edge:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-linear-light.png">
-  <img alt="Step 1 with a linear x-axis instead of log: the small-bucket dots all crowd against the left edge while XL drifts far to the right." src="/docs/img/derivation-frame1-linear-light.png">
+  <img alt="Step 1: linear x-axis (lines changed), linear size factor y-axis. Five colored dots at each bucket median, labeled with their target doubling factor: 0.25, 0.5, 1, 2, 4. The small-bucket dots all crowd against the left edge while XL drifts far to the right." src="/docs/img/derivation-frame1-linear-light.png">
+</picture>
+
+Same dots, log x-axis. They spread out across the chart:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-light.png">
+  <img alt="Step 1 with a log x-axis: the five dots now spread evenly across the chart." src="/docs/img/derivation-frame1-light.png">
 </picture>
 
 Switching the x-axis from line count to percentile evens the spacing.
