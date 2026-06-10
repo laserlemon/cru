@@ -75,6 +75,12 @@ class Theme:
     bucket_fill_alpha: float
 
 
+# Bucket palette: GitHub Primer brand scales, theme-agnostic.
+# Same hex values render legibly on both light and dark canvases (chosen
+# from the Primer brand swatches at primer.style/brand/primitives/color).
+#   XS = green-5, S = lime-5, M = yellow-3, L = orange-3, XL = red-4
+BUCKET_COLORS = ["#0fbf3e", "#92c219", "#fabf21", "#f08a3a", "#fa4549"]
+
 LIGHT = Theme(
     name="light",
     bg="#ffffff",
@@ -83,8 +89,8 @@ LIGHT = Theme(
     grid="#d1d9e0",
     accent="#0969da",
     accent_dim="#218bff",
-    bucket_colors=["#1a7f37", "#4f9e1c", "#9a6700", "#bc4c00", "#cf222e"],
-    bucket_fill_alpha=0.18,
+    bucket_colors=BUCKET_COLORS,
+    bucket_fill_alpha=0.28,
 )
 
 DARK = Theme(
@@ -95,8 +101,8 @@ DARK = Theme(
     grid="#30363d",
     accent="#58a6ff",
     accent_dim="#388bfd",
-    bucket_colors=["#3fb950", "#82c91e", "#d29922", "#db6d28", "#f85149"],
-    bucket_fill_alpha=0.22,
+    bucket_colors=BUCKET_COLORS,
+    bucket_fill_alpha=0.32,
 )
 
 
