@@ -233,6 +233,13 @@ doubles or halves the size factor:
 | L  | 2.0  (2× a typical PR) |
 | XL | 4.0  (4× a typical PR) |
 
+That doubling step is a deliberate choice, not something the data
+demands. It could just as easily be 1.5× per step (gentler) or 3× per
+step (steeper). Doubling is the call I made: each step up the size
+scale feels meaningfully harder to review than the last, without
+running away from the bottom of the range so fast that the bigger
+buckets become unreachable in practice.
+
 The size factor is the smooth, continuous function of line count that
 hits all five of those anchors. Everything else (the curve, the floor,
 the ceiling) falls out of the math.
