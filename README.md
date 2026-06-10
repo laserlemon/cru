@@ -164,8 +164,7 @@ boundaries of the locked log-normal: the lines at the 20th, 40th,
 60th, and 80th percentiles of the baseline distribution. Each bucket
 holds exactly one-fifth of the historical pull request mass.
 
-The raw quintile cuts are computed at package init from `Mu` and `Sigma`,
-so calibration changes propagate to bucket cut points automatically:
+The raw quintile cuts are computed at package init from `Mu` and `Sigma`:
 
 | Percentile | Raw cut | Bucket boundary |
 |---|---|---|
@@ -191,10 +190,8 @@ The resulting buckets:
 | L | (54, 162] |
 | XL | (162, ∞) |
 
-The constants are locked on purpose. Like a foot, the value of the unit is in
-the unchanging standard, not in how closely it matches any current reality.
-Trends in review effort become measurable instead of getting absorbed into a
-moving baseline.
+The constants are locked. Like a foot, the value of the unit is in the
+unchanging standard, not in how closely it matches any current reality.
 
 ## License
 
