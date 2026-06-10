@@ -167,7 +167,7 @@ holds exactly one-fifth of the historical pull request mass.
 The raw cuts are computed at package init from `Mu` and `Sigma`, then
 each is floored down to the nearest even integer:
 
-| Size | Percentile range | Raw lines | Raw mass | Final lines | Final mass |
+| Size | Percentile range | Raw bounds | Raw mass | Final bounds | Final mass |
 |---|---|---|---|---|---|
 | XS | (0%, 20%]   | (0, 7.07]       | 20.00% | (0, 6]    | 17.64% |
 | S  | (20%, 40%]  | (7.07, 21.19]   | 20.00% | (6, 20]   | 21.17% |
