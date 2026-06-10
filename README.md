@@ -289,7 +289,7 @@ they're all powers of two. The dots line up:
   <img alt="Step 3: y-axis switched to log₂. The size factor ticks are labeled as powers of two (2⁻², 2⁻¹, 2⁰, 2¹, 2²). The five dots now lie on a perfectly straight line." src="/docs/img/derivation-frame3-light.png">
 </picture>
 
-Draw the line. With the y-axis stretched exactly half a doubling beyond
+Connect the dots! With the y-axis stretched exactly half a doubling beyond
 each endpoint, the line goes corner to corner of the chart. This is the
 entire formula. Every dot is on it. Every 20 percentile points equals
 one doubling of the size factor:
