@@ -220,11 +220,22 @@ distribution:
 
 ### Building the size factor, one axis at a time
 
-The buckets are the target. The size factor is the smooth, continuous
-function that lands every bucket median on a doubling: XS → 0.25,
-S → 0.5, M → 1.0, L → 2.0, XL → 4.0. Five anchors, five doublings,
-ratio of 16× from smallest to largest. Everything else (the curve, the
-floor, the ceiling) falls out of the math.
+The buckets are the target. The anchor is M: a typical pull request
+should score exactly 1.0, so the median of the M bucket lands on 1.0
+by construction. From there, each step up or down the shirt-size scale
+doubles or halves the size factor:
+
+| Bucket | Size factor |
+|---|---|
+| XS | 0.25 (¼× a typical PR) |
+| S  | 0.5  (½× a typical PR) |
+| M  | 1.0  (a typical PR) |
+| L  | 2.0  (2× a typical PR) |
+| XL | 4.0  (4× a typical PR) |
+
+The size factor is the smooth, continuous function of line count that
+hits all five of those anchors. Everything else (the curve, the floor,
+the ceiling) falls out of the math.
 
 Start with the picture from before, plus a dot at the median of each
 bucket sitting at its target size factor. The y-axis is the size factor
