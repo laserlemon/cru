@@ -47,7 +47,7 @@ CRU = size factor × ownership share × risk multiplier
 Bigger pull requests are harder to review, but not linearly: a 1000-line
 review isn't 100× the effort of a 10-line review. The size factor is
 anchored at 1.0 for a typical pull request and doubles at each step up
-the t-shirt scale (XS, S, M, L, XL). It ranges from about 0.18 for a typo
+the t-shirt scale (XS, S, M, L, XL). It ranges from about 0.18 for a one-liner
 to about 5.66 for an enormous refactor. The exact curve comes from a
 log-normal fit of merged pull request sizes in a large monolithic GitHub
 repository, locked once and never re-tuned.
