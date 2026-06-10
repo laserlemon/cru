@@ -164,31 +164,24 @@ boundaries of the locked log-normal: the lines at the 20th, 40th,
 60th, and 80th percentiles of the baseline distribution. Each bucket
 holds exactly one-fifth of the historical pull request mass.
 
-The raw quintile cuts are computed at package init from `Mu` and `Sigma`:
+The raw cuts are computed at package init from `Mu` and `Sigma`, then
+each is floored down to the nearest even integer:
 
-| Percentile | Raw cut | Bucket boundary |
-|---|---|---|
-| 20% | 7.07 | 6 |
-| 40% | 21.19 | 20 |
-| 60% | 54.58 | 54 |
-| 80% | 163.72 | 162 |
+| Size | Percentile range | Raw lines | Raw mass | Final lines | Final mass |
+|---|---|---|---|---|---|
+| XS | (0%, 20%]   | (0, 7.07]       | 20.00% | (0, 6]    | 17.64% |
+| S  | (20%, 40%]  | (7.07, 21.19]   | 20.00% | (6, 20]   | 21.17% |
+| M  | (40%, 60%]  | (21.19, 54.58]  | 20.00% | (20, 54]  | 20.97% |
+| L  | (60%, 80%]  | (54.58, 163.72] | 20.00% | (54, 162] | 20.06% |
+| XL | (80%, 100%] | (163.72, ∞)     | 20.00% | (162, ∞)  | 20.16% |
 
-Each raw cut is then floored down to the nearest even integer. Why
-even? Real pull requests skew toward even line counts: every full-line
-edit contributes a `-` and a `+` to the diff (additions + deletions),
-so two-line changes are more common than one-line, four more common
-than three, and so on. Floor-to-even keeps boundary pull requests from
-straddling buckets unpredictably.
-
-The resulting buckets:
-
-| Bucket | Lines |
-|---|---|
-| XS | (0, 6] |
-| S | (6, 20] |
-| M | (20, 54] |
-| L | (54, 162] |
-| XL | (162, ∞) |
+Why even? Real pull requests have jagged line counts: peaks at even
+counts (every full-line edit contributes both a `-` and a `+` to the
+diff), valleys at odd. By flooring every boundary to an even number,
+every bucket spans an even number of lines and so contains the same
+count of peaks and valleys. Labels stay balanced no matter how jagged
+the underlying distribution is, at the small cost of a one- or
+two-point deviation from perfect equal-fifths.
 
 The constants are locked. Like a foot, the value of the unit is in the
 unchanging standard, not in how closely it matches any current reality.
