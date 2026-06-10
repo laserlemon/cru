@@ -176,11 +176,11 @@ each is floored down to the nearest even integer:
 
 Why even? Real pull requests have jagged line counts: peaks at even
 counts (every full-line edit contributes both a `-` and a `+` to the
-diff), valleys at odd. By flooring every boundary to an even number,
-every bucket spans an even number of lines and so contains the same
-count of peaks and valleys. Labels stay balanced no matter how jagged
-the underlying distribution is, at the small cost of a one- or
-two-point deviation from perfect equal-fifths.
+diff), valleys at odd. By flooring boundaries to even numbers, every
+bucket gets an equal share of even line counts (peaks) and odd line
+counts (valleys). Labels stay balanced no matter how jagged the
+underlying distribution is, at the small cost of a one- or two-point
+deviation from perfect equal-fifths.
 
 The constants are locked. Like a foot, the value of the unit is in the
 unchanging standard, not in how closely it matches any current reality.
