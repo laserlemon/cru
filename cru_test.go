@@ -86,7 +86,7 @@ func TestSizeMonotonic(t *testing.T) {
 }
 
 // TestSizeBoundariesDerived verifies that the cached bucket boundaries
-// are exactly the floored-to-even quintile cuts of the locked log-normal,
+// are exactly the nearest-even quintile cuts of the locked log-normal,
 // confirming the package's "no magic numbers" property: change Mu/Sigma
 // or len(sizes) and the boundaries follow.
 func TestSizeBoundariesDerived(t *testing.T) {
@@ -94,10 +94,7 @@ func TestSizeBoundariesDerived(t *testing.T) {
 	for i := 1; i < n; i++ {
 		p := float64(i) / float64(n)
 		raw := math.Exp(Mu + Sigma*probit(p))
-		want := int(math.Floor(raw))
-		if want%2 != 0 {
-			want--
-		}
+		want := int(math.Round(raw/2)) * 2
 		got := sizeBoundaries[i-1]
 		if got != want {
 			t.Errorf("sizeBoundaries[%d] = %d, want %d (raw=%v at p=%v)",
@@ -141,11 +138,11 @@ func TestSizeStringLabels(t *testing.T) {
 		lines int
 		want  string
 	}{
-		{0, SizeXS}, {1, SizeXS}, {6, SizeXS},
-		{7, SizeS}, {20, SizeS},
-		{21, SizeM}, {54, SizeM},
-		{55, SizeL}, {162, SizeL},
-		{163, SizeXL}, {100_000, SizeXL},
+		{0, SizeXS}, {1, SizeXS}, {10, SizeXS},
+		{11, SizeS}, {28, SizeS},
+		{29, SizeM}, {72, SizeM},
+		{73, SizeL}, {206, SizeL},
+		{207, SizeXL}, {100_000, SizeXL},
 	}
 	for _, c := range cases {
 		got := CalculateSize(c.lines).String()

@@ -12,7 +12,7 @@
 //	// The size value carries both its factor and its label:
 //	sz := cru.CalculateSize(250)
 //	fmt.Println(sz)            // "XL"
-//	fmt.Println(sz.Factor())   // 3.4499... (the size factor)
+//	fmt.Println(sz.Factor())   // 3.1275... (the size factor)
 //
 // All constants come from a locked log-normal fit of merged pull request
 // sizes in a large monolithic GitHub repository with thousands of
@@ -40,13 +40,13 @@ const (
 	// Mu (μ) and Sigma (σ) of the log-normal fit of merged pull request
 	// line counts from a large monolithic GitHub repository with
 	// thousands of individual contributors.
-	Mu    = 3.526665
-	Sigma = 1.867217
+	Mu    = 3.808551
+	Sigma = 1.802600
 )
 
 // Size is a pull request's size factor. The float64 value IS the factor
 // used in the CRU formula; the categorical label (XS/S/M/L/XL) is derived
-// from a floor-to-even quintile partition of the locked log-normal
+// from a nearest-even quintile partition of the locked log-normal
 // distribution and surfaced via String(). Read the factor via Factor(),
 // which is equivalent to float64(s).
 //
@@ -199,14 +199,14 @@ var sizes = [...]string{SizeXS, SizeS, SizeM, SizeL, SizeXL}
 // represents a doubling of CRU.
 const sizeRange = float64(len(sizes))
 
-// sizeBoundaries holds the floored-to-even quintile boundaries of the
+// sizeBoundaries holds the nearest-even quintile boundaries of the
 // locked log-normal. sizeBoundaries[i] is the highest line count that
 // still belongs to sizes[i]; anything above the last boundary is
 // sizes[len-1]. Computed at init from Mu, Sigma, and len(sizes), so
 // calibration changes propagate to bucket cut points automatically.
 //
-// Each boundary is exp(μ + σ · Φ⁻¹(i/N)) for i in 1..N-1, then floored
-// down to the nearest even integer for human-friendly display.
+// Each boundary is exp(μ + σ · Φ⁻¹(i/N)) for i in 1..N-1, then rounded
+// to the nearest even integer for human-friendly display.
 var sizeBoundaries [len(sizes) - 1]int
 
 func init() {
@@ -214,11 +214,10 @@ func init() {
 	for i := 1; i < n; i++ {
 		p := float64(i) / float64(n)
 		raw := math.Exp(Mu + Sigma*probit(p))
-		b := int(math.Floor(raw))
-		if b%2 != 0 {
-			b-- // floor to even
-		}
-		sizeBoundaries[i-1] = b
+		// Round to nearest even integer: divide by 2, round to nearest,
+		// multiply by 2. math.Round rounds half away from zero, which is
+		// what we want for positive boundaries.
+		sizeBoundaries[i-1] = int(math.Round(raw/2)) * 2
 	}
 }
 

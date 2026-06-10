@@ -27,11 +27,11 @@ go get github.com/laserlemon/cru
 import "github.com/laserlemon/cru"
 
 // A 250-line pull request, the reviewer owns 100 lines of it, low risk.
-cru.Calculate(250, 100, cru.RiskLow) // => 1.3800...
+cru.Calculate(250, 100, cru.RiskLow) // => 1.2510...
 
 // The size value carries both its factor and its label.
 sz := cru.CalculateSize(250)
-sz.Factor() // => 3.4499...
+sz.Factor() // => 3.1275...
 sz.String() // => "XL"
 ```
 
@@ -138,8 +138,8 @@ is provably exhaustive.
 ### Constants
 
 ```go
-cru.Mu    = 3.526665     // log-normal μ
-cru.Sigma = 1.867217     // log-normal σ
+cru.Mu    = 3.808551     // log-normal μ
+cru.Sigma = 1.802600     // log-normal σ
 
 cru.RiskLow    // factor 1.0, the default
 cru.RiskMedium // factor 2.0, author-tagged
@@ -160,27 +160,29 @@ them in downstream code instead of bare string literals.
 The size factor is a continuous function, but t-shirt labels need
 cutoff points. Those cutoffs are the four equal-mass quintile
 boundaries of the locked log-normal: the lines at the 20th, 40th,
-60th, and 80th percentiles of the baseline distribution. Each bucket
-holds exactly one-fifth of the historical pull request mass.
+60th, and 80th percentiles of the baseline distribution. The raw
+quintile cuts split the log-normal into exact equal fifths; the
+shipped cuts deviate from those raw values for the rounding reason
+described below.
 
 The raw cuts are computed at package init from `Mu` and `Sigma`, then
-each is floored down to the nearest even integer:
+each is rounded to the nearest even integer:
 
-| Size | Percentile range | Raw bounds | Raw mass | Final bounds | Final mass |
+| Size | Percentile range | Raw bound | Raw mass | Final bound | Final mass |
 |---|---|---|---|---|---|
-| XS | (0%, 20%]   | (0, 7.07]       | 20.00% | (0, 6]    | 17.64% |
-| S  | (20%, 40%]  | (7.07, 21.19]   | 20.00% | (6, 20]   | 21.17% |
-| M  | (40%, 60%]  | (21.19, 54.58]  | 20.00% | (20, 54]  | 20.97% |
-| L  | (60%, 80%]  | (54.58, 163.72] | 20.00% | (54, 162] | 20.06% |
-| XL | (80%, 100%] | (163.72, ∞)     | 20.00% | (162, ∞)  | 20.16% |
+| XS | (0%, 20%]   | (0, 9.89]       | 20.00% | (0, 10]    | 20.17% |
+| S  | (20%, 40%]  | (9.89, 28.56]   | 20.00% | (10, 28]   | 19.41% |
+| M  | (40%, 60%]  | (28.56, 71.18]  | 20.00% | (28, 72]   | 20.67% |
+| L  | (60%, 80%]  | (71.18, 205.54] | 20.00% | (72, 206]  | 19.79% |
+| XL | (80%, 100%] | (205.54, ∞)     | 20.00% | (206, ∞)   | 19.97% |
 
 Why even? Real pull requests have jagged line counts: peaks at even
 counts (every full-line edit contributes both a `-` and a `+` to the
-diff), valleys at odd. By flooring boundaries to even numbers, every
+diff), valleys at odd. By rounding boundaries to even numbers, every
 bucket gets an equal share of even line counts (peaks) and odd line
 counts (valleys). Labels stay balanced no matter how jagged the
-underlying distribution is, at the small cost of a one- or two-point
-deviation from perfect equal-fifths.
+underlying distribution is, with every final bucket landing within one
+point of perfect equal-fifths.
 
 The constants are locked. Like a foot, the value of the unit is in the
 unchanging standard, not in how closely it matches any current reality.
