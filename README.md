@@ -255,6 +255,9 @@ all crush together on the left edge:
   <img alt="Step 1: linear x-axis (lines changed), linear size factor y-axis. Five colored dots at each bucket median, labeled with their target doubling factor: 0.25, 0.5, 1, 2, 4. The small-bucket dots all crowd against the left edge while XL drifts far to the right." src="/docs/img/derivation-frame1-linear-light.png">
 </picture>
 
+What function perfectly connects all five dots? Hard to tell with the
+small buckets crushed against the y-axis.
+
 Same dots, log x-axis. They spread out across the chart:
 
 <picture>
