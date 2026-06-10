@@ -11,12 +11,6 @@ a typical pull request, where "typical" is anchored to a locked reference
 distribution of real merged pull requests. The unit is stable across time:
 a CRU today and a CRU five years from now mean the same thing.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/size-factor-hero-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/size-factor-hero-light.png">
-  <img alt="Size factor across the locked log-normal distribution, with five t-shirt buckets and doubling anchors" src="/docs/img/size-factor-hero-light.png">
-</picture>
-
 This package is the formula by itself. To measure code review effort for
 GitHub pull requests, see [`gh-cru`](https://github.com/laserlemon/gh-cru),
 a GitHub CLI extension.
@@ -53,23 +47,14 @@ Bigger pull requests are harder to review, but not linearly: a 1000-line
 review isn't 100× the effort of a 10-line review. The size factor is a
 smooth, continuous function of line count, anchored at 1.0 for a typical
 pull request. It ranges from about 0.18 for a one-liner to about 5.66
-for an enormous refactor. The exact curve comes from a log-normal fit
-of merged pull request sizes in a large monolithic GitHub repository,
-locked once and never re-tuned.
-
-Pull request sizes are log-normal, which means the raw distribution
-looks like a cliff but flips into a clean bell once you put the x axis
-on a log scale:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-linear-vs-log-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-linear-vs-log-light.png">
-  <img alt="The same log-normal distribution of PR sizes, shown on linear and log x-axes" src="/docs/img/distribution-linear-vs-log-light.png">
-</picture>
+for an enormous refactor.
 
 The t-shirt scale (XS, S, M, L, XL) is post-hoc labeling for display.
 Each step up the scale corresponds to a doubling of the size factor,
 but the underlying number is continuous, not bucketed.
+
+For the full derivation, see [🤓 For the math nerds…](#-for-the-math-nerds)
+at the bottom of this README.
 
 ### Ownership share
 
@@ -171,24 +156,182 @@ cru.SizeXL // "XL"
 The size constants are exactly the strings `Size.String()` returns. Switch on
 them in downstream code instead of bare string literals.
 
-## Calibration
+## 🤓 For the math nerds…
 
-The size factor is a continuous function, but t-shirt labels need
-cutoff points. Those cutoffs are the four equal-mass quintile
-boundaries of the locked log-normal: the lines at the 20th, 40th,
-60th, and 80th percentiles of the baseline distribution. The raw
-quintile cuts split the log-normal into exact equal fifths; the
-shipped cuts deviate from those raw values for the rounding reason
-described below.
+The size factor is a continuous function of line count anchored to a
+fixed reference distribution. Both halves (the distribution and the
+mapping onto it) are locked, so the unit is stable across time.
+
+### The locked baseline
+
+Pull request sizes follow a log-normal distribution: lots of small
+diffs, a long tail of large ones, and a median far enough below the
+peak to mislead anyone who reads the chart by eye.
+
+On a linear x-axis the distribution looks like a cliff. Most of what
+your eye reads as empty space to the right is actually half of all
+pull requests. The median sits well off in the flatlands, hidden by
+the visual weight of the spike on the left:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/cdf-with-quintiles-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/cdf-with-quintiles-light.png">
-  <img alt="CDF of the locked log-normal, with the four percentile cross-hairs that become bucket boundaries" src="/docs/img/cdf-with-quintiles-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-linear-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-linear-light.png">
+  <img alt="The locked log-normal distribution of pull request sizes on a linear x-axis. Long, flat tail. The median sits at 45 lines, far to the right of the visual peak." src="/docs/img/distribution-linear-light.png">
 </picture>
 
-The raw cuts are computed at package init from `Mu` and `Sigma`, then
-each is rounded to the nearest even integer:
+Put the x-axis on a log scale and it turns into a familiar bell shape
+with the median sitting near the visual center:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-log-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-log-light.png">
+  <img alt="The same log-normal distribution with a log-scaled x-axis. The shape is bell-like and the median at 45 lines now sits where the eye expects." src="/docs/img/distribution-log-light.png">
+</picture>
+
+The parameters are `μ = 3.808551` and `σ = 1.802600`, fit from real
+merged pull requests in a large monolithic GitHub repository. They're
+locked once and never re-tuned. Like a foot, the value of the unit is
+in the unchanging standard, not in how closely it matches any current
+reality.
+
+### Five buckets, equal mass
+
+The shirt-size labels (XS, S, M, L, XL) are quintiles of the locked
+distribution. The four cuts that separate them are the 20th, 40th,
+60th, and 80th percentiles, so every bucket holds about 20% of all
+pull requests:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-log-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-log-light.png">
+  <img alt="The log-scaled distribution divided into five equal-mass quintiles, labeled XS through XL. Boundaries at p20, p40, p60, p80." src="/docs/img/quintiles-log-light.png">
+</picture>
+
+On a linear x-axis those quintile boundaries crowd into the left third
+of the chart, with XL claiming everything to the right. Same math,
+different view:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-linear-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-linear-light.png">
+  <img alt="The same five quintiles shown on a linear x-axis. XS, S, and M crowd the left edge; XL covers most of the visible range." src="/docs/img/quintiles-linear-light.png">
+</picture>
+
+### Building the size factor, one axis at a time
+
+The buckets are the target. The size factor is the smooth, continuous
+function that lands every bucket median on a doubling: XS → 0.25,
+S → 0.5, M → 1.0, L → 2.0, XL → 4.0. Five anchors, five doublings,
+ratio of 16× from smallest to largest. Everything else (the curve, the
+floor, the ceiling) falls out of the math.
+
+Start with the picture from before, plus a dot at the median of each
+bucket sitting at its target size factor. The y-axis is the size factor
+itself, linear from 0 to 6:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-light.png">
+  <img alt="Step 1: log-LOC x-axis, linear size factor y-axis. Five colored dots at each bucket median, labeled with their target doubling factor: 0.25, 0.5, 1, 2, 4." src="/docs/img/derivation-frame1-light.png">
+</picture>
+
+Same dots, linear x-axis. The XS, S, and M dots all crush together on
+the left edge:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-linear-light.png">
+  <img alt="Step 1 with a linear x-axis instead of log: the small-bucket dots all crowd against the left edge while XL drifts far to the right." src="/docs/img/derivation-frame1-linear-light.png">
+</picture>
+
+Switching the x-axis from line count to percentile evens the spacing.
+By construction the bucket medians sit at the 10th, 30th, 50th, 70th,
+and 90th percentile, so the dots are evenly distributed across the
+chart:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame2-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame2-light.png">
+  <img alt="Step 2: x-axis switched to percentile. Same five dots, now evenly spaced at p10, p30, p50, p70, p90." src="/docs/img/derivation-frame2-light.png">
+</picture>
+
+Now switch the y-axis to log₂. The y-ticks are still at the doubling
+levels (0.25, 0.5, 1, 2, 4), but each step is now equispaced because
+they're all powers of two. The dots are colinear:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame3-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame3-light.png">
+  <img alt="Step 3: y-axis switched to log₂. The size factor ticks are labeled as powers of two (2⁻², 2⁻¹, 2⁰, 2¹, 2²). The five dots now lie on a perfectly straight line." src="/docs/img/derivation-frame3-light.png">
+</picture>
+
+Draw the line. With the y-axis stretched exactly half a doubling beyond
+each endpoint, the line goes corner to corner of the chart. This is the
+entire formula. Every dot is on it. Every 20 percentile points equals
+one doubling of the size factor:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame4-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame4-light.png">
+  <img alt="Step 4: a blue line drawn corner to corner of the chart. The line threads through every dot. The size factor formula, in its native log₂ × percentile space." src="/docs/img/derivation-frame4-light.png">
+</picture>
+
+In one expression:
+
+```
+size factor = 2 ^ (5·F(L) − 2.5)
+```
+
+where `F(L) = Φ((ln L − μ) / σ)` is the pull request's percentile rank
+in the locked distribution. The `5·F − 2.5` rescaling takes a percentile
+in `[0, 1]` and turns it into a log₂ exponent in `[−2.5, +2.5]`, hence
+the floor of `2⁻²·⁵ ≈ 0.18` and the ceiling of `2²·⁵ ≈ 5.66`.
+
+Now unwind the axes back to LOC and linear size factor and watch the
+straight line bend into the curve everyone recognizes.
+
+Y-axis from log₂ back to linear: the formula becomes exponential in
+percentile, hugging the floor for small pull requests and racing
+upward through M and beyond:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame2-line-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame2-line-light.png">
+  <img alt="Unwinding the y-axis: percentile x, linear size factor y. The straight line is now an exponential curve. Dots still in place." src="/docs/img/derivation-frame2-line-light.png">
+</picture>
+
+X-axis from percentile back to log LOC: the exponential turns into the
+classic logistic-shaped S-curve. The floor at the left and the
+approach to the ceiling at the right both become visible:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-log-line-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-log-line-light.png">
+  <img alt="Unwinding the x-axis: log-LOC x, linear size factor y. The curve takes on its familiar S-shape with floor at the left, ceiling approached at the right." src="/docs/img/derivation-frame1-log-line-light.png">
+</picture>
+
+X-axis from log back to linear LOC: the final form. The same curve,
+shown the way most people first see it: line count on the bottom,
+size factor on the side, both linear. The same five dots still sit on
+the same five doublings:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-line-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-linear-line-light.png">
+  <img alt="Unwound completely: linear x and linear y. The size factor curve in its native shape, with the five anchored dots still on their doublings." src="/docs/img/derivation-frame1-linear-line-light.png">
+</picture>
+
+### Why the bucket boundaries are even integers
+
+The four cuts that separate the shirt sizes are raw quintile values
+that don't land on round numbers (about 9.89, 28.56, 71.18, 205.54).
+Real pull requests, though, have jagged line counts: peaks at even
+counts (a one-line edit contributes both a `-` and a `+` to the diff)
+and valleys at odd counts. Cutting the line count at an odd number
+gives one neighboring bucket an extra peak the other doesn't get.
+
+So the raw cuts get rounded to the nearest even integer, keeping
+peaks and valleys distributed evenly across all five buckets:
 
 | Size | Percentile range | Raw bound | Raw mass | Final bound | Final mass |
 |---|---|---|---|---|---|
@@ -198,64 +341,15 @@ each is rounded to the nearest even integer:
 | L  | (60%, 80%]  | (71.18, 205.54] | 20.00% | (72, 206]  | 19.79% |
 | XL | (80%, 100%] | (205.54, ∞)     | 20.00% | (206, ∞)   | 19.97% |
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-with-buckets-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-with-buckets-light.png">
-  <img alt="The log-normal distribution sliced into five color-coded buckets, each holding about 20% of the mass" src="/docs/img/distribution-with-buckets-light.png">
-</picture>
+Every final bucket lands within one percentage point of perfect
+equal-fifths, with the rounding artifact spread invisibly across the
+distribution instead of concentrated in any one bucket.
 
-Why even? Real pull requests have jagged line counts: peaks at even
-counts (every full-line edit contributes both a `-` and a `+` to the
-diff), valleys at odd. By rounding boundaries to even numbers, every
-bucket gets an equal share of even line counts (peaks) and odd line
-counts (valleys). Labels stay balanced no matter how jagged the
-underlying distribution is, with every final bucket landing within one
-point of perfect equal-fifths.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/bucket-mass-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/bucket-mass-light.png">
-  <img alt="Theoretical mass per bucket as a bar chart, every bucket within 1pp of 20%" src="/docs/img/bucket-mass-light.png">
-</picture>
-
-The constants are locked. Like a foot, the value of the unit is in the
-unchanging standard, not in how closely it matches any current reality.
-
-## How the size factor is built
-
-The size factor is `2^(5·F(L) − 2.5)`, where `F(L) = Φ((ln L − μ) / σ)`
-is the pull request's percentile rank in the locked distribution. Three
-steps from raw line count to size factor:
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/size-factor-derivation-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/size-factor-derivation-light.png">
-  <img alt="The size factor built in three steps: percentile rank, then rescale to ±2.5, then exponentiate base 2" src="/docs/img/size-factor-derivation-light.png">
-</picture>
-
-The base-2 exponent and the `5·F − 2.5` rescaling are picked together so
-that the median pull request scores exactly `1.0` and each successive
-bucket median doubles the previous. Plotting the size factor on a log
-axis makes the doubling property visible: the five bucket medians sit on
-evenly-spaced horizontal gridlines.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/size-factor-log-log-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/size-factor-log-log-light.png">
-  <img alt="Size factor on a log-log axis, showing each bucket median as a doubling" src="/docs/img/size-factor-log-log-light.png">
-</picture>
-
-The five anchors are the only properties locked into the unit. Every
-other shape (the sigmoid, the floor, the ceiling, the bucket
-boundaries) falls out of `μ`, `σ`, and the requirement that the bucket
-medians land on consecutive powers of two.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/doubling-anchors-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/doubling-anchors-light.png">
-  <img alt="Five bucket medians annotated on the size factor curve, each a power of two" src="/docs/img/doubling-anchors-light.png">
-</picture>
+---
 
 The graphs above are rendered by [`scripts/render-graphs.py`](scripts/render-graphs.py)
-and use a GitHub Primer palette in both themes. Re-run after any change
-to `Mu` or `Sigma` to keep the visuals in sync with the code.
+using the GitHub Primer color palette. Backgrounds are transparent so
+the chart text reads against either light or dark themes; the colored
+shirt-size bands sit at constant alpha and work on both. Re-run after
+any change to `Mu` or `Sigma` to keep the visuals in sync with the
+code.
