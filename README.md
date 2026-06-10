@@ -256,7 +256,9 @@ all crush together on the left edge:
 </picture>
 
 What function perfectly connects all five dots? Hard to tell with the
-small buckets crushed against the y-axis.
+small buckets crushed against the y-axis. So we'll transform the axes
+until the dots line up. A line is the simplest relationship there is,
+and once we find the view where that happens, we have the formula.
 
 Same dots, log x-axis. They spread out across the chart:
 
@@ -279,7 +281,7 @@ chart:
 
 Now switch the y-axis to log₂. The y-ticks are still at the doubling
 levels (0.25, 0.5, 1, 2, 4), but each step is now equispaced because
-they're all powers of two. The dots are colinear:
+they're all powers of two. The dots line up:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame3-dark.png">
