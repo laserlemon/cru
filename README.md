@@ -65,8 +65,8 @@ own 100 of 250 changed lines, your ownership share is 0.4.
 ### Risk multiplier
 
 Three tiers: 1× for low (default), 2× for medium, 4× for high.
-Authors may tag pull requests that touch sensitive paths, where the
-same line count deserves more rigorous review. By default, an untagged
+Authors may flag pull requests that touch sensitive paths, where the
+same line count deserves more rigorous review. By default, an unflagged
 pull request is considered low risk.
 
 ## API
