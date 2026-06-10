@@ -23,7 +23,7 @@
 // "foot" as a unit of measurement, the value of the unit is in the
 // unchanging standard, not in how closely it matches any current reality.
 //
-// CRU = size factor × ownership share × risk factor
+// CRU = size factor × ownership share × risk multiplier
 //
 //	size(L) = 2^(5·F(L) − 2.5)
 //	F(L)    = Φ((ln L − μ) / σ)

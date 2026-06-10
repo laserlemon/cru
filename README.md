@@ -39,17 +39,28 @@ sz.String() // => "XL"
 ## Formula
 
 ```
-CRU = size factor × ownership share × risk factor
-
-size(L) = 2^(5·F(L) − 2.5)
-F(L)    = Φ((ln L − μ) / σ)
+CRU = size factor × ownership share × risk multiplier
 ```
 
-`Φ` is the standard normal CDF. `L` is the pull request's line count
-(additions + deletions, i.e. total diff churn). `μ = 3.526665` and
-`σ = 1.867217` are baked-in constants from a log-normal fit of merged
-pull request sizes in a large monolithic GitHub repository with thousands
-of individual contributors.
+**Size factor.** Bigger pull requests are harder to review, but not
+linearly: a 1000-line change isn't 100× the work of a 10-line one. The
+factor anchors at 1.0 for a typical pull request and doubles at each
+step up the t-shirt scale (XS, S, M, L, XL). It ranges from about 0.18
+for a typo to about 5.66 for an enormous refactor. The exact curve comes
+from a log-normal fit of merged pull request sizes in a large monolithic
+GitHub repository, locked once and never re-tuned.
+
+**Ownership share.** A number between 0 and 1: how much of the pull
+request's lines you're on the hook for. If you own all 250 of its lines
+via CODEOWNERS, your share is 1.0 and you carry the full size factor. If
+you own 100 of 250, your share is 0.4 and you carry 40% of the work.
+Shared ownership across teams gets deduplicated so nobody is double-counted.
+
+**Risk multiplier.** Three tiers: 1× for the default (low), 2× for
+medium, 4× for high. Authors mark this on pull requests that touch
+sensitive paths (auth code, migration scripts, billing logic), where the
+same line count deserves more careful eyes. Most code is unmarked and
+lands at low.
 
 ## API
 
