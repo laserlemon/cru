@@ -188,9 +188,9 @@ with the full range of pull request sizes in view:
 </picture>
 
 The parameters are `μ = 3.808551` and `σ = 1.802600`, fit from 233,806
-merged, human-authored, human-reviewed pull requests in a large
-monolithic GitHub repository over 15 years. They're locked once and
-never re-tuned. Like a foot, the value of the unit is in the unchanging
+human-authored, human-reviewed pull requests in a large monolithic
+GitHub repository, merged over 15 years. They're locked once and never
+re-tuned. Like a foot, the value of the unit is in the unchanging
 standard, not in how closely it matches any current reality.
 
 ### Five buckets, equal mass
