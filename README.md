@@ -12,9 +12,9 @@ distribution of real merged pull requests. The unit is stable across time:
 a CRU today and a CRU five years from now mean the same thing.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/size-factor-hero-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/size-factor-hero-light.png">
-  <img alt="Size factor across the locked log-normal distribution, with five t-shirt buckets and doubling anchors" src="docs/img/size-factor-hero-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/size-factor-hero-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/size-factor-hero-light.png">
+  <img alt="Size factor across the locked log-normal distribution, with five t-shirt buckets and doubling anchors" src="/docs/img/size-factor-hero-light.png">
 </picture>
 
 This package is the formula by itself. To measure code review effort for
@@ -62,9 +62,9 @@ looks like a cliff but flips into a clean bell once you put the x axis
 on a log scale:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/distribution-linear-vs-log-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/distribution-linear-vs-log-light.png">
-  <img alt="The same log-normal distribution of PR sizes, shown on linear and log x-axes" src="docs/img/distribution-linear-vs-log-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-linear-vs-log-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-linear-vs-log-light.png">
+  <img alt="The same log-normal distribution of PR sizes, shown on linear and log x-axes" src="/docs/img/distribution-linear-vs-log-light.png">
 </picture>
 
 The t-shirt scale (XS, S, M, L, XL) is post-hoc labeling for display.
@@ -182,9 +182,9 @@ shipped cuts deviate from those raw values for the rounding reason
 described below.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/cdf-with-quintiles-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/cdf-with-quintiles-light.png">
-  <img alt="CDF of the locked log-normal, with the four percentile cross-hairs that become bucket boundaries" src="docs/img/cdf-with-quintiles-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/cdf-with-quintiles-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/cdf-with-quintiles-light.png">
+  <img alt="CDF of the locked log-normal, with the four percentile cross-hairs that become bucket boundaries" src="/docs/img/cdf-with-quintiles-light.png">
 </picture>
 
 The raw cuts are computed at package init from `Mu` and `Sigma`, then
@@ -199,9 +199,9 @@ each is rounded to the nearest even integer:
 | XL | (80%, 100%] | (205.54, ∞)     | 20.00% | (206, ∞)   | 19.97% |
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/distribution-with-buckets-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/distribution-with-buckets-light.png">
-  <img alt="The log-normal distribution sliced into five color-coded buckets, each holding about 20% of the mass" src="docs/img/distribution-with-buckets-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-with-buckets-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-with-buckets-light.png">
+  <img alt="The log-normal distribution sliced into five color-coded buckets, each holding about 20% of the mass" src="/docs/img/distribution-with-buckets-light.png">
 </picture>
 
 Why even? Real pull requests have jagged line counts: peaks at even
@@ -213,9 +213,9 @@ underlying distribution is, with every final bucket landing within one
 point of perfect equal-fifths.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/bucket-mass-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/bucket-mass-light.png">
-  <img alt="Theoretical mass per bucket as a bar chart, every bucket within 1pp of 20%" src="docs/img/bucket-mass-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/bucket-mass-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/bucket-mass-light.png">
+  <img alt="Theoretical mass per bucket as a bar chart, every bucket within 1pp of 20%" src="/docs/img/bucket-mass-light.png">
 </picture>
 
 The constants are locked. Like a foot, the value of the unit is in the
@@ -228,9 +228,9 @@ is the pull request's percentile rank in the locked distribution. Three
 steps from raw line count to size factor:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/size-factor-derivation-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/size-factor-derivation-light.png">
-  <img alt="The size factor built in three steps: percentile rank, then rescale to ±2.5, then exponentiate base 2" src="docs/img/size-factor-derivation-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/size-factor-derivation-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/size-factor-derivation-light.png">
+  <img alt="The size factor built in three steps: percentile rank, then rescale to ±2.5, then exponentiate base 2" src="/docs/img/size-factor-derivation-light.png">
 </picture>
 
 The base-2 exponent and the `5·F − 2.5` rescaling are picked together so
@@ -240,9 +240,9 @@ axis makes the doubling property visible: the five bucket medians sit on
 evenly-spaced horizontal gridlines.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/size-factor-log-log-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/size-factor-log-log-light.png">
-  <img alt="Size factor on a log-log axis, showing each bucket median as a doubling" src="docs/img/size-factor-log-log-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/size-factor-log-log-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/size-factor-log-log-light.png">
+  <img alt="Size factor on a log-log axis, showing each bucket median as a doubling" src="/docs/img/size-factor-log-log-light.png">
 </picture>
 
 The five anchors are the only properties locked into the unit. Every
@@ -251,9 +251,9 @@ boundaries) falls out of `μ`, `σ`, and the requirement that the bucket
 medians land on consecutive powers of two.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/doubling-anchors-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/doubling-anchors-light.png">
-  <img alt="Five bucket medians annotated on the size factor curve, each a power of two" src="docs/img/doubling-anchors-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/doubling-anchors-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/doubling-anchors-light.png">
+  <img alt="Five bucket medians annotated on the size factor curve, each a power of two" src="/docs/img/doubling-anchors-light.png">
 </picture>
 
 The graphs above are rendered by [`scripts/render-graphs.py`](scripts/render-graphs.py)
