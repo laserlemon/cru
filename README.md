@@ -308,8 +308,8 @@ size factor = 2 ^ (5·F(L) − 2.5)
 
 where `F(L) = Φ((ln L − μ) / σ)` is the pull request's percentile rank
 in the locked distribution. The `5·F − 2.5` rescaling takes a percentile
-in `[0, 1]` and turns it into a log₂ exponent in `[−2.5, +2.5]`, hence
-the floor of `2⁻²·⁵ ≈ 0.18` and the ceiling of `2²·⁵ ≈ 5.66`.
+in `[0, 1]` and turns it into a log₂ exponent in `[−2.5, +2.5]`, producing
+a natural floor of `2⁻²·⁵ ≈ 0.18` and ceiling of `2²·⁵ ≈ 5.66`.
 
 Now unwind the axes back to LOC and linear size factor and watch the
 straight line bend back into a curve.
