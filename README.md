@@ -209,13 +209,13 @@ of the chart, with XL claiming everything to the right:
   <img alt="Five equal-mass quintiles on a linear x-axis. XS, S, and M crowd the left edge; XL covers most of the visible range." src="/docs/img/quintiles-linear-light.png">
 </picture>
 
-Switch to a log x-axis and the bands fan out evenly across the
+Switch to a log x-axis and the bands fan out more evenly across the
 distribution:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-log-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-log-light.png">
-  <img alt="The same five quintiles on a log-scaled x-axis. The bands now spread out evenly across the distribution." src="/docs/img/quintiles-log-light.png">
+  <img alt="The same five quintiles on a log-scaled x-axis. The bands now spread out more evenly across the distribution." src="/docs/img/quintiles-log-light.png">
 </picture>
 
 ### Building the size factor, one axis at a time
