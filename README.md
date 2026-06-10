@@ -42,43 +42,48 @@ sz.String() // => "XL"
 CRU = size factor × ownership share × risk multiplier
 ```
 
-**Size factor.** Bigger pull requests are harder to review, but not
-linearly: a 1000-line change isn't 100× the work of a 10-line one. The
-factor anchors at 1.0 for a typical pull request and doubles at each
-step up the t-shirt scale (XS, S, M, L, XL). It ranges from about 0.18
-for a typo to about 5.66 for an enormous refactor. The exact curve comes
-from a log-normal fit of merged pull request sizes in a large monolithic
-GitHub repository, locked once and never re-tuned.
+### Size factor
 
-**Ownership share.** A number between 0 and 1: how much of the pull
-request's lines you're on the hook for. If you own all 250 of its lines
-via CODEOWNERS, your share is 1.0 and you carry the full size factor. If
-you own 100 of 250, your share is 0.4 and you carry 40% of the work.
-Shared ownership across teams gets deduplicated so nobody is double-counted.
+Bigger pull requests are harder to review, but not linearly: a 1000-line
+change isn't 100× the work of a 10-line one. The factor anchors at 1.0
+for a typical pull request and doubles at each step up the t-shirt scale
+(XS, S, M, L, XL). It ranges from about 0.18 for a typo to about 5.66
+for an enormous refactor. The exact curve comes from a log-normal fit
+of merged pull request sizes in a large monolithic GitHub repository,
+locked once and never re-tuned.
 
-**Risk multiplier.** Three tiers: 1× for the default (low), 2× for
-medium, 4× for high. Authors mark this on pull requests that touch
-sensitive paths (auth code, migration scripts, billing logic), where the
-same line count deserves more careful eyes. Most code is unmarked and
-lands at low.
+### Ownership share
+
+A number between 0 and 1: how much of the pull request's lines you're
+on the hook for. If you own all 250 of its lines via CODEOWNERS, your
+share is 1.0 and you carry the full size factor. If you own 100 of 250,
+your share is 0.4 and you carry 40% of the work. Shared ownership across
+teams gets deduplicated so nobody is double-counted.
+
+### Risk multiplier
+
+Three tiers: 1× for the default (low), 2× for medium, 4× for high.
+Authors mark this on pull requests that touch sensitive paths (auth
+code, migration scripts, billing logic), where the same line count
+deserves more careful eyes. Most code is unmarked and lands at low.
 
 ## API
 
-**Functions**
+### Functions
 
 | | |
 |---|---|
 | `cru.Calculate(totalLines, ownedLines int, risk Risk) float64` | Full CRU for one (reviewer, pull request) pair |
 | `cru.CalculateSize(lines int) Size` | Size factor plus derived t-shirt label |
 
-**Types**
+### Types
 
 | | |
 |---|---|
 | `cru.Size` | `float64` named type; `String()` returns `"XS"`/`"S"`/`"M"`/`"L"`/`"XL"` |
 | `cru.Risk` | Sealed interface; only the three constants below satisfy it. Comparable via `==` and `switch` |
 
-**Constants**
+### Constants
 
 ```go
 cru.Mu    = 3.526665     // log-normal μ
