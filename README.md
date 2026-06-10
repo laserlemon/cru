@@ -170,13 +170,12 @@ of the most common size.
 
 On a linear x-axis the distribution looks like a cliff. The median is
 the line that cuts the pull requests in half: as many to its left as
-to its right. It sits at 45 lines, much further right than the chart's
-shape suggests.
+to its right. It sits at 45 lines.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-linear-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-linear-light.png">
-  <img alt="The locked log-normal distribution of pull request sizes on a linear x-axis. Long, flat tail. The median sits at 45 lines, much further right than the chart's shape suggests." src="/docs/img/distribution-linear-light.png">
+  <img alt="The locked log-normal distribution of pull request sizes on a linear x-axis. Long, flat tail. The median sits at 45 lines." src="/docs/img/distribution-linear-light.png">
 </picture>
 
 Put the x-axis on a log scale and the cliff smooths into a bell shape
