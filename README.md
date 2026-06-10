@@ -179,7 +179,7 @@ the visual weight of the spike on the left:
   <img alt="The locked log-normal distribution of pull request sizes on a linear x-axis. Long, flat tail. The median sits at 45 lines, far to the right of the visual peak." src="/docs/img/distribution-linear-light.png">
 </picture>
 
-Put the x-axis on a log scale and it turns into a familiar bell shape
+Put the x-axis on a log scale and it turns into a symmetric bell shape
 with the median sitting near the visual center:
 
 <picture>
@@ -290,7 +290,7 @@ in `[0, 1]` and turns it into a log₂ exponent in `[−2.5, +2.5]`, hence
 the floor of `2⁻²·⁵ ≈ 0.18` and the ceiling of `2²·⁵ ≈ 5.66`.
 
 Now unwind the axes back to LOC and linear size factor and watch the
-straight line bend into the curve everyone recognizes.
+straight line bend back into a curve.
 
 Y-axis from log₂ back to linear: the formula becomes exponential in
 percentile, hugging the floor for small pull requests and racing
@@ -302,20 +302,19 @@ upward through M and beyond:
   <img alt="Unwinding the y-axis: percentile x, linear size factor y. The straight line is now an exponential curve. Dots still in place." src="/docs/img/derivation-frame2-line-light.png">
 </picture>
 
-X-axis from percentile back to log LOC: the exponential turns into the
-classic logistic-shaped S-curve. The floor at the left and the
-approach to the ceiling at the right both become visible:
+X-axis from percentile back to log LOC: the exponential turns into an
+S-curve. The floor at the left and the approach to the ceiling at the
+right both become visible:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-log-line-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-log-line-light.png">
-  <img alt="Unwinding the x-axis: log-LOC x, linear size factor y. The curve takes on its familiar S-shape with floor at the left, ceiling approached at the right." src="/docs/img/derivation-frame1-log-line-light.png">
+  <img alt="Unwinding the x-axis: log-LOC x, linear size factor y. The curve takes on an S-shape with floor at the left, ceiling approached at the right." src="/docs/img/derivation-frame1-log-line-light.png">
 </picture>
 
-X-axis from log back to linear LOC: the final form. The same curve,
-shown the way most people first see it: line count on the bottom,
-size factor on the side, both linear. The same five dots still sit on
-the same five doublings:
+X-axis from log back to linear LOC: the final form. Line count on the
+bottom, size factor on the side, both linear. The same five dots still
+sit on the same five doublings:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-line-dark.png">
