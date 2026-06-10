@@ -55,10 +55,10 @@ repository, locked once and never re-tuned.
 ### Ownership share
 
 A number between 0 and 1: how many of the pull request's lines you're
-responsible for. If you own all 250 of its lines via CODEOWNERS, your
-share is 1.0 and you carry the full size factor. If you own 100 of 250,
-your share is 0.4 and you carry 40% of the work. Shared ownership across
-teams gets deduplicated so nobody is double-counted.
+responsible for. If you own all of the pull request's changed files via
+CODEOWNERS, your share is 1.0 and you carry the full size factor. If you
+own 100 of its 250 lines, your share is 0.4 and you carry 40% of the work.
+Shared ownership across teams gets deduplicated so nobody is double-counted.
 
 ### Risk multiplier
 
