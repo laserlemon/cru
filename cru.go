@@ -105,8 +105,8 @@ func probit(p float64) float64 {
 // RiskHigh. The interface is sealed (unexported isRisk method); external
 // packages cannot construct alternative Risk values.
 type Risk interface {
-	// Factor returns the risk multiplier (1.0 / 2.0 / 4.0).
-	Factor() float64
+	// Multiplier returns the risk multiplier (1.0 / 2.0 / 4.0).
+	Multiplier() float64
 	// String returns the tier label ("low" / "medium" / "high").
 	String() string
 	// isRisk is a sealing method. It exists only to prevent external types
@@ -117,13 +117,13 @@ type Risk interface {
 
 // risk is the unexported concrete type backing the three Risk constants.
 type risk struct {
-	name   string
-	factor float64
+	name       string
+	multiplier float64
 }
 
-func (r risk) Factor() float64 { return r.factor }
-func (r risk) String() string  { return r.name }
-func (r risk) isRisk()         {}
+func (r risk) Multiplier() float64 { return r.multiplier }
+func (r risk) String() string      { return r.name }
+func (r risk) isRisk()             {}
 
 // Risk tiers. Authors mark risk; everything else defaults to low. The
 // three tiers double at each step (1× → 2× → 4×), giving the same span
@@ -139,9 +139,9 @@ func (r risk) isRisk()         {}
 // values (see the sealed Risk interface) but can technically reassign
 // these vars in-process; treat them as immutable.
 var (
-	RiskLow    Risk = risk{name: "low", factor: 1.0}
-	RiskMedium Risk = risk{name: "medium", factor: 2.0}
-	RiskHigh   Risk = risk{name: "high", factor: 4.0}
+	RiskLow    Risk = risk{name: "low", multiplier: 1.0}
+	RiskMedium Risk = risk{name: "medium", multiplier: 2.0}
+	RiskHigh   Risk = risk{name: "high", multiplier: 4.0}
 )
 
 // Calculate returns the full CRU for a single (reviewer, pull request) pair.
@@ -169,7 +169,7 @@ func Calculate(totalLines, ownedLines int, risk Risk) float64 {
 		ownedLines = totalLines
 	}
 	share := float64(ownedLines) / float64(totalLines)
-	return float64(CalculateSize(totalLines)) * share * risk.Factor()
+	return float64(CalculateSize(totalLines)) * share * risk.Multiplier()
 }
 
 // --- bucket derivation ---------------------------------------------------

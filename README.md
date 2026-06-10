@@ -9,8 +9,7 @@ The canonical Go implementation of the Code Review Unit (CRU) formula.
 A CRU is a unit of code-review effort. One CRU equals the work of reviewing
 a typical pull request, where "typical" is anchored to a locked reference
 distribution of real merged pull requests. The unit is stable across time:
-a CRU today and a CRU five years from now mean the same thing, the way a
-foot has always meant a foot.
+a CRU today and a CRU five years from now mean the same thing.
 
 This package is the formula by itself. To measure code review effort for
 GitHub pull requests, see [`gh-cru`](https://github.com/laserlemon/gh-cru),
@@ -82,7 +81,7 @@ func Calculate(totalLines, ownedLines int, risk Risk) float64
 
 Returns the full CRU for a single (reviewer, pull request) pair. This is
 the headline function: `CalculateSize(totalLines).Factor() × (ownedLines
-/ totalLines) × risk.Factor()`. Returns 0 when `totalLines` is 0. Clamps
+/ totalLines) × risk.Multiplier()`. Returns 0 when `totalLines` is 0. Clamps
 `ownedLines` to `[0, totalLines]` so callers can't double-count overlap
 or pass a negative share. Panics if `risk` is nil.
 

@@ -230,7 +230,7 @@ func TestCalculateEdges(t *testing.T) {
 		t.Errorf("Calculate(100, -10, low) = %v, want 0", got)
 	}
 	// ownedLines > totalLines clamps to totalLines; CRU equals 100%-owned CRU.
-	want := float64(CalculateSize(100)) * RiskLow.Factor()
+	want := float64(CalculateSize(100)) * RiskLow.Multiplier()
 	if got := Calculate(100, 200, RiskLow); got != want {
 		t.Errorf("Calculate(100, 200, low) = %v, want %v (clamped)", got, want)
 	}
@@ -238,17 +238,17 @@ func TestCalculateEdges(t *testing.T) {
 
 func TestRiskTiers(t *testing.T) {
 	// Doubling at each step: low → medium → high.
-	if RiskMedium.Factor()/RiskLow.Factor() != 2.0 {
+	if RiskMedium.Multiplier()/RiskLow.Multiplier() != 2.0 {
 		t.Errorf("RiskMedium/RiskLow = %v, want 2.0",
-			RiskMedium.Factor()/RiskLow.Factor())
+			RiskMedium.Multiplier()/RiskLow.Multiplier())
 	}
-	if RiskHigh.Factor()/RiskMedium.Factor() != 2.0 {
+	if RiskHigh.Multiplier()/RiskMedium.Multiplier() != 2.0 {
 		t.Errorf("RiskHigh/RiskMedium = %v, want 2.0",
-			RiskHigh.Factor()/RiskMedium.Factor())
+			RiskHigh.Multiplier()/RiskMedium.Multiplier())
 	}
-	if RiskHigh.Factor()/RiskLow.Factor() != 4.0 {
+	if RiskHigh.Multiplier()/RiskLow.Multiplier() != 4.0 {
 		t.Errorf("RiskHigh/RiskLow = %v, want 4.0",
-			RiskHigh.Factor()/RiskLow.Factor())
+			RiskHigh.Multiplier()/RiskLow.Multiplier())
 	}
 }
 
