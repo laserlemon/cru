@@ -61,7 +61,7 @@ own 100 of 250 changed lines, your ownership share is 0.4.
 
 ### Risk multiplier
 
-Three tiers: 1× for the default (low), 2× for medium, 4× for high.
+Three tiers: 1× for low (default), 2× for medium, 4× for high.
 Authors mark this on pull requests that touch sensitive paths (auth
 code, migration scripts, billing logic), where the same line count
 deserves more careful eyes. Most code is unmarked and lands at low.
