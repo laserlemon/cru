@@ -369,12 +369,3 @@ peaks and valleys distributed evenly across all five buckets:
 Every final bucket lands within one percentage point of perfect
 equal-fifths, with the rounding artifact spread invisibly across the
 distribution instead of concentrated in any one bucket.
-
----
-
-The graphs above are rendered by [`scripts/render-graphs.py`](scripts/render-graphs.py)
-using the GitHub Primer color palette. Backgrounds are transparent so
-the chart text reads against either light or dark themes; the colored
-shirt-size bands sit at constant alpha and work on both. Re-run after
-any change to `Mu` or `Sigma` to keep the visuals in sync with the
-code.
