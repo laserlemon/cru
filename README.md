@@ -187,11 +187,11 @@ with the full range of pull request sizes in view:
   <img alt="The same log-normal distribution with a log-scaled x-axis. The shape is bell-like and the median at 45 lines now sits where the eye expects." src="/docs/img/distribution-log-light.png">
 </picture>
 
-The parameters are `μ = 3.808551` and `σ = 1.802600`, fit from real
-merged pull requests in a large monolithic GitHub repository. They're
-locked once and never re-tuned. Like a foot, the value of the unit is
-in the unchanging standard, not in how closely it matches any current
-reality.
+The parameters are `μ = 3.808551` and `σ = 1.802600`, fit from 266,396
+merged, human-authored, human-reviewed pull requests in a large
+monolithic GitHub repository over 16 years. They're locked once and
+never re-tuned. Like a foot, the value of the unit is in the unchanging
+standard, not in how closely it matches any current reality.
 
 ### Five buckets, equal mass
 
