@@ -184,7 +184,3 @@ deviation from perfect equal-fifths.
 
 The constants are locked. Like a foot, the value of the unit is in the
 unchanging standard, not in how closely it matches any current reality.
-
-## License
-
-MIT
