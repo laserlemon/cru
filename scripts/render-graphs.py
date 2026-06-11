@@ -293,14 +293,16 @@ BUCKET_MEDIAN_PCT = [10, 30, 50, 70, 90]
 QUINTILE_PCT = [20, 40, 60, 80]
 
 
-def _derivation_dots(ax, theme, xs, ys):
+def _derivation_dots(ax, theme, xs, ys, *, clip=True):
     for x, y, color, target in zip(xs, ys, BUCKET_COLORS, DOUBLING_TARGETS):
         ax.scatter([x], [y], s=140, color=color,
-                   edgecolor=theme.fg, linewidth=1.4, zorder=6)
+                   edgecolor=theme.fg, linewidth=1.4, zorder=6,
+                   clip_on=clip)
         ax.annotate(f"{target:g}", xy=(x, y), xycoords="data",
                     xytext=(11, 0), textcoords="offset points",
                     color=theme.fg, fontsize=10, fontweight="medium",
-                    va="center", ha="left", zorder=7)
+                    va="center", ha="left", zorder=7,
+                    annotation_clip=clip)
 
 
 def _quintile_bands(ax, theme, edges, bounds):
@@ -348,7 +350,7 @@ def render_derivation_linear(theme: Theme, outpath: Path, *, with_line: bool):
     ax.yaxis.set_major_locator(FixedLocator(Y_TICKS_LINEAR))
     if with_line:
         ax.plot(LOC_CURVE, SF_CURVE, color=theme.accent, lw=2.2, alpha=0.85, zorder=4)
-    _derivation_dots(ax, theme, BUCKET_MEDIANS, DOUBLING_TARGETS)
+    _derivation_dots(ax, theme, BUCKET_MEDIANS, DOUBLING_TARGETS, clip=False)
     fig.savefig(outpath, transparent=True)
     plt.close(fig)
 
