@@ -56,8 +56,8 @@ const (
 type Size float64
 
 // Factor returns the size multiplier used in the CRU formula. Equivalent
-// to float64(s); provided so Size and Risk read symmetrically (both have
-// Factor() and String()).
+// to float64(s); provided so Size and Risk read symmetrically (both
+// expose their numeric value via a method, alongside String()).
 func (s Size) Factor() float64 { return float64(s) }
 
 // String returns the t-shirt size label for s, derived from the line
