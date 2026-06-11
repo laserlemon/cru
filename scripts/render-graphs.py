@@ -2,7 +2,7 @@
 """
 Render the cru README visualization suite.
 
-Generates transparent-background PNGs in both light and dark variants so
+Generates transparent-background SVGs in both light and dark variants so
 the README can use <picture> elements without bleeding the canvas color.
 
 Run:
@@ -11,22 +11,22 @@ Run:
 Outputs (24 files in docs/img/):
 
     Distribution shape (with median marker)
-      distribution-linear-{light,dark}.png
-      distribution-log-{light,dark}.png
+      distribution-linear-{light,dark}.svg
+      distribution-log-{light,dark}.svg
 
     Distribution sliced into shirt-size quintiles
-      quintiles-linear-{light,dark}.png
-      quintiles-log-{light,dark}.png
+      quintiles-linear-{light,dark}.svg
+      quintiles-log-{light,dark}.svg
 
     Size factor derivation, step by step
-      derivation-frame1-{light,dark}.png         (log LOC X, linear SF Y)
-      derivation-frame1-linear-{light,dark}.png  (linear LOC X, linear SF Y)
-      derivation-frame2-{light,dark}.png         (percentile X, linear SF Y)
-      derivation-frame3-{light,dark}.png         (percentile X, log2 SF Y)
-      derivation-frame4-{light,dark}.png         (frame 3 + corner-to-corner line)
-      derivation-frame2-line-{light,dark}.png    (frame 2 + formula curve)
-      derivation-frame1-log-line-{light,dark}.png    (frame 1 + formula curve)
-      derivation-frame1-linear-line-{light,dark}.png (frame 1 linear + formula curve)
+      derivation-frame1-{light,dark}.svg         (log LOC X, linear SF Y)
+      derivation-frame1-linear-{light,dark}.svg  (linear LOC X, linear SF Y)
+      derivation-frame2-{light,dark}.svg         (percentile X, linear SF Y)
+      derivation-frame3-{light,dark}.svg         (percentile X, log2 SF Y)
+      derivation-frame4-{light,dark}.svg         (frame 3 + corner-to-corner line)
+      derivation-frame2-line-{light,dark}.svg    (frame 2 + formula curve)
+      derivation-frame1-log-line-{light,dark}.svg    (frame 1 + formula curve)
+      derivation-frame1-linear-line-{light,dark}.svg (frame 1 linear + formula curve)
 
 The math is identical to cru.go. The constants are duplicated here for
 plot-rendering convenience; if cru.go changes, update both.
@@ -432,7 +432,7 @@ def main():
     written = 0
     for stem, fn, kwargs in JOBS:
         for theme in (LIGHT, DARK):
-            path = out / f"{stem}-{theme.name}.png"
+            path = out / f"{stem}-{theme.name}.svg"
             print(f"  rendering {path.relative_to(out.parent.parent)}")
             fn(theme, path, **kwargs)
             written += 1
