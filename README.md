@@ -344,17 +344,23 @@ sit on the same five doublings:
   <img alt="Unwound completely: linear x and linear y. The size factor curve in its native shape, with the five anchored dots still on their doublings." src="/docs/img/derivation-frame1-linear-line-light.png">
 </picture>
 
-### Why the bucket boundaries are even integers
+### Snapping the cuts to line counts
 
-The four cuts that separate the shirt sizes are raw quintile values
-that don't land on round numbers (about 9.89, 28.56, 71.18, 205.54).
-Real pull requests, though, have jagged line counts: peaks at even
-counts (a one-line edit contributes both a `-` and a `+` to the diff)
-and valleys at odd counts. Cutting the line count at an odd number
-gives one neighboring bucket an extra peak the other doesn't get.
+The quintile cuts come out of the math as decimals: 9.89, 28.56, 71.18,
+205.54. Real pull requests have integer line counts, so the boundaries
+should too. A cut at 9.89 just hides an integer cut anyway (anything ≤ 9
+is XS, anything ≥ 10 is S), and naming the integer makes the boundary
+easier to reason about.
 
-So the raw cuts get rounded to the nearest even integer, keeping
-peaks and valleys distributed evenly across all five buckets:
+Now, *which* integer? Rounding to the nearest one is the natural move,
+but PR line counts aren't smoothly distributed. Modifying an existing
+line shows up in a diff as one removal plus one addition, and
+modifications are common, so even counts are noticeably more populated
+than odd ones. Cutting at an odd number hands one of the neighboring
+buckets a denser slice that the other doesn't get.
+
+Rounding to the nearest **even** integer keeps the dense (even) and sparse (odd)
+counts balanced for each bucket:
 
 | Size | Percentile range | Raw bound | Raw mass | Final bound | Final mass |
 |---|---|---|---|---|---|
