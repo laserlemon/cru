@@ -21,6 +21,65 @@ a GitHub CLI extension.
 go get github.com/laserlemon/cru
 ```
 
+## CLI
+
+A small `cru` binary ships in `cmd/cru` for one-off scoring without writing
+any Go:
+
+```bash
+go install github.com/laserlemon/cru/cmd/cru@latest
+```
+
+Then:
+
+```bash
+$ cru 100 85 medium
+Total LOC        100
+Size             L
+Size factor      1.807
+Owned LOC        85
+Ownership share  0.850
+Risk             medium
+Risk multiplier  2.000
+CRU              3.072
+```
+
+Args are positional: `cru <total> [owned] [risk]`. Owned defaults to total
+(full ownership), risk defaults to `low`. The 2-arg form type-detects: an
+integer is the owned count, a label is the risk tier.
+
+```bash
+cru 100               # 100-line PR, fully owned, low risk
+cru 100 85            # 100-line PR, 85 lines owned, low risk
+cru 100 high          # 100-line PR, fully owned, high risk
+cru 100 85 medium     # everything spelled out
+```
+
+Output adapts to context: a TTY gets the labeled view above, a pipe or file
+gets a bare CRU number on its own line, and `--json` always emits a
+structured object (NDJSON in batch mode).
+
+```bash
+$ cru 100 85 low | cat
+1.536
+
+$ cru 100 85 medium --json
+{"total":100,"owned":85,"ownership_share":0.85,"size":"L","size_factor":1.807...,"cru":3.072...}
+```
+
+For bulk scoring, pipe one input per line:
+
+```bash
+$ printf "100 85 low\n240\n50 high\n" | cru
+1.536
+3.065
+4.330
+```
+
+Blank lines and `#`-comment lines are skipped. A bad line writes to stderr
+with the line number and continues; the exit code is 1 if anything failed,
+0 otherwise.
+
 ## Quick start
 
 ```go
