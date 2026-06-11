@@ -56,15 +56,18 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		fmt.Fprint(stderr, usage)
 	}
 	jsonOut := fs.Bool("json", false, "emit a JSON object per scoring (NDJSON in batch mode)")
-	if err := fs.Parse(args); err != nil {
+
+	// Stdlib flag stops parsing at the first non-flag token, so
+	// "cru 100 --json" would treat --json as a positional. Pre-split
+	// so flags work in any position, the way users expect.
+	flagArgs, positional := splitFlags(args)
+	if err := fs.Parse(flagArgs); err != nil {
 		// flag prints its own message + usage; just return non-zero.
 		if errors.Is(err, flag.ErrHelp) {
 			return 0
 		}
 		return 2
 	}
-
-	positional := fs.Args()
 
 	// Mode dispatch.
 	switch {
@@ -76,6 +79,36 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	default:
 		return runOne(positional, stdout, stderr, *jsonOut)
 	}
+}
+
+// splitFlags partitions args into flag-looking tokens and positional
+// tokens, preserving order within each bucket. Lets us call flag.Parse
+// without requiring users to put flags before positional args.
+//
+// A token is a flag when it starts with "-" and the next character
+// isn't a digit. The digit exception preserves negative numbers as
+// positional input, even though "total must be > 0" makes them an
+// error downstream anyway (better error message via the validator).
+func splitFlags(args []string) (flags, positional []string) {
+	for _, a := range args {
+		if looksLikeFlag(a) {
+			flags = append(flags, a)
+		} else {
+			positional = append(positional, a)
+		}
+	}
+	return flags, positional
+}
+
+func looksLikeFlag(s string) bool {
+	if len(s) < 2 || s[0] != '-' {
+		return false
+	}
+	// "-5" is a number, not a flag.
+	if s[1] >= '0' && s[1] <= '9' {
+		return false
+	}
+	return true
 }
 
 // runOne scores a single positional invocation.

@@ -144,6 +144,78 @@ func TestRunOne(t *testing.T) {
 	}
 }
 
+// TestFlagPositionAgnostic locks in that --json can appear before, after,
+// or between positionals. Stdlib flag stops parsing at the first non-flag
+// token, so we pre-split; these cases pin that behavior.
+func TestFlagPositionAgnostic(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		args []string
+	}{
+		{name: "flag before all positionals", args: []string{"--json", "100", "85", "low"}},
+		{name: "flag after total", args: []string{"100", "--json"}},
+		{name: "flag after total+owned", args: []string{"100", "85", "--json"}},
+		{name: "flag after all positionals", args: []string{"100", "85", "low", "--json"}},
+		{name: "flag between positionals", args: []string{"100", "--json", "85", "low"}},
+		{name: "flag at the end", args: []string{"100", "85", "low", "--json"}},
+		{name: "equals form", args: []string{"100", "--json=true"}},
+		{name: "single-dash form", args: []string{"100", "-json"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var stdout, stderr bytes.Buffer
+			code := run(tc.args, &bytes.Buffer{}, &stdout, &stderr)
+			if code != 0 {
+				t.Fatalf("exit = %d, want 0; stderr=%s", code, stderr.String())
+			}
+			// Validate JSON output regardless of arg shape.
+			if !strings.Contains(stdout.String(), `"cru":`) {
+				t.Errorf("expected JSON output, got %q", stdout.String())
+			}
+		})
+	}
+}
+
+// TestSplitFlags pins the per-token classification so the
+// digit-exception (negative numbers stay positional) doesn't regress.
+func TestSplitFlags(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		args      []string
+		wantFlags []string
+		wantPos   []string
+	}{
+		{name: "empty", args: nil, wantFlags: nil, wantPos: nil},
+		{name: "all positional", args: []string{"100", "85", "low"}, wantFlags: nil, wantPos: []string{"100", "85", "low"}},
+		{name: "all flags", args: []string{"--json", "--help"}, wantFlags: []string{"--json", "--help"}, wantPos: nil},
+		{name: "interleaved", args: []string{"100", "--json", "85"}, wantFlags: []string{"--json"}, wantPos: []string{"100", "85"}},
+		{name: "negative number stays positional", args: []string{"-5", "--json"}, wantFlags: []string{"--json"}, wantPos: []string{"-5"}},
+		{name: "bare dash stays positional", args: []string{"-"}, wantFlags: nil, wantPos: []string{"-"}},
+		{name: "equals form", args: []string{"100", "--json=true"}, wantFlags: []string{"--json=true"}, wantPos: []string{"100"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			gotFlags, gotPos := splitFlags(tc.args)
+			if !equalSlices(gotFlags, tc.wantFlags) {
+				t.Errorf("flags = %v, want %v", gotFlags, tc.wantFlags)
+			}
+			if !equalSlices(gotPos, tc.wantPos) {
+				t.Errorf("positional = %v, want %v", gotPos, tc.wantPos)
+			}
+		})
+	}
+}
+
+func equalSlices(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func TestRunBadArg(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	code := run([]string{"abc"}, &bytes.Buffer{}, &stdout, &stderr)
