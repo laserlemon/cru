@@ -244,7 +244,7 @@ the ceiling) falls out of the math.
 
 Start with the picture from before, plus a dot at the median of each
 bucket sitting at its target size factor. The y-axis is the size factor
-itself, linear from 0 to 6. On a linear x-axis the XS, S, and M dots
+itself. On a linear x-axis the XS, S, and M dots
 all crush together on the left edge:
 
 <picture>
