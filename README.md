@@ -226,11 +226,11 @@ doubles or halves the size factor:
 
 | Bucket | Size factor |
 |---|---|
-| XS | 0.25 (¼× a typical PR) |
-| S  | 0.5  (½× a typical PR) |
-| M  | 1.0  (a typical PR) |
-| L  | 2.0  (2× a typical PR) |
-| XL | 4.0  (4× a typical PR) |
+| XS | 0.25 |
+| S  | 0.5  |
+| M  | 1.0  |
+| L  | 2.0  |
+| XL | 4.0  |
 
 That doubling step is a deliberate choice, not something the data
 demands. It could just as easily be 1.5× per step (gentler) or 3× per
