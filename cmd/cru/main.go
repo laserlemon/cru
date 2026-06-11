@@ -253,19 +253,19 @@ func emit(w io.Writer, total, owned int, risk cru.Risk, jsonOut, decorate bool) 
 		// exactly represented in float64.
 		obj := struct {
 			TotalLines     int         `json:"total_lines"`
-			OwnedLines     int         `json:"owned_lines"`
-			OwnershipShare json.Number `json:"ownership_share"`
 			SizeLabel      string      `json:"size_label"`
 			SizeFactor     json.Number `json:"size_factor"`
+			OwnedLines     int         `json:"owned_lines"`
+			OwnershipShare json.Number `json:"ownership_share"`
 			RiskLabel      string      `json:"risk_label"`
 			RiskMultiplier json.Number `json:"risk_multiplier"`
 			CRU            json.Number `json:"cru"`
 		}{
 			TotalLines:     total,
-			OwnedLines:     owned,
-			OwnershipShare: num6(share),
 			SizeLabel:      size.String(),
 			SizeFactor:     num6(factor),
+			OwnedLines:     owned,
+			OwnershipShare: num6(share),
 			RiskLabel:      risk.String(),
 			RiskMultiplier: num6(mult),
 			CRU:            num6(score),

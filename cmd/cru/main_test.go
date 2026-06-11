@@ -86,11 +86,26 @@ func TestEmitJSON(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &obj); err != nil {
 		t.Fatalf("invalid JSON: %v", err)
 	}
-	wantKeys := []string{"total_lines", "owned_lines", "ownership_share", "size_label", "size_factor", "risk_label", "risk_multiplier", "cru"}
+	wantKeys := []string{"total_lines", "size_label", "size_factor", "owned_lines", "ownership_share", "risk_label", "risk_multiplier", "cru"}
 	for _, k := range wantKeys {
 		if _, ok := obj[k]; !ok {
 			t.Errorf("JSON missing key %q; got %v", k, obj)
 		}
+	}
+	// Field order in the raw JSON should mirror the human output rows.
+	// We index into the serialized bytes (not the unmarshaled map, which
+	// is unordered) and verify each key appears after the previous one.
+	raw := out.String()
+	prev := -1
+	for _, k := range wantKeys {
+		idx := strings.Index(raw, `"`+k+`"`)
+		if idx < 0 {
+			t.Fatalf("key %q not found in raw JSON: %s", k, raw)
+		}
+		if idx < prev {
+			t.Errorf("key %q at index %d appears before previous key at %d; JSON: %s", k, idx, prev, raw)
+		}
+		prev = idx
 	}
 	if obj["risk_label"] != "medium" {
 		t.Errorf("risk_label = %v, want medium", obj["risk_label"])
