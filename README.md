@@ -245,7 +245,7 @@ the ceiling) falls out of the math.
 Start with the picture from before, plus a dot at the median of each
 bucket sitting at its target size factor. The y-axis is the size factor
 itself. On a linear x-axis the XS, S, and M dots
-all crush together on the left edge:
+all crowd together on the left edge:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-dark.png">
@@ -254,7 +254,7 @@ all crush together on the left edge:
 </picture>
 
 What function perfectly connects all five dots? Hard to tell with the
-small buckets crushed against the y-axis. So we'll transform the axes
+small buckets squeezed against the y-axis. So we'll transform the axes
 until the dots line up. A line is the simplest relationship there is,
 and once we find the view where that happens, we have the formula.
 
