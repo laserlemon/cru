@@ -247,24 +247,28 @@ func emit(w io.Writer, total, owned int, risk cru.Risk, jsonOut, decorate bool) 
 
 	switch {
 	case jsonOut:
+		// json.Number lets us pin formatted precision (%.6f) without
+		// the encoder reverting to shortest-roundtrip float printing,
+		// which leaks 14+ digits when the rounded value can't be
+		// exactly represented in float64.
 		obj := struct {
-			Total           int     `json:"total"`
-			Owned           int     `json:"owned"`
-			OwnershipShare  float64 `json:"ownership_share"`
-			Size            string  `json:"size"`
-			SizeFactor      float64 `json:"size_factor"`
-			Risk            string  `json:"risk"`
-			RiskMultiplier  float64 `json:"risk_multiplier"`
-			CRU             float64 `json:"cru"`
+			TotalLines     int         `json:"total_lines"`
+			OwnedLines     int         `json:"owned_lines"`
+			OwnershipShare json.Number `json:"ownership_share"`
+			SizeLabel      string      `json:"size_label"`
+			SizeFactor     json.Number `json:"size_factor"`
+			RiskLabel      string      `json:"risk_label"`
+			RiskMultiplier json.Number `json:"risk_multiplier"`
+			CRU            json.Number `json:"cru"`
 		}{
-			Total:          total,
-			Owned:          owned,
-			OwnershipShare: share,
-			Size:           size.String(),
-			SizeFactor:     factor,
-			Risk:           risk.String(),
-			RiskMultiplier: mult,
-			CRU:            score,
+			TotalLines:     total,
+			OwnedLines:     owned,
+			OwnershipShare: num6(share),
+			SizeLabel:      size.String(),
+			SizeFactor:     num6(factor),
+			RiskLabel:      risk.String(),
+			RiskMultiplier: num6(mult),
+			CRU:            num6(score),
 		}
 		// Compact NDJSON: one object per line, no trailing whitespace
 		// other than the newline json.Encoder writes for us.
@@ -272,13 +276,21 @@ func emit(w io.Writer, total, owned int, risk cru.Risk, jsonOut, decorate bool) 
 	case decorate:
 		writeHuman(w, total, owned, risk, size, factor, mult, share, score)
 	default:
-		// Bare: just the number.
-		fmt.Fprintf(w, "%.3f\n", score)
+		// Bare: just the number, 6 decimals for machine consumption.
+		fmt.Fprintf(w, "%.6f\n", score)
 	}
 }
 
+// num6 formats a float64 to 6 decimal places as a json.Number. Used in
+// JSON output so floats render as e.g. "1.536003" instead of leaking
+// float64 representation noise like "1.5360029999999998".
+func num6(f float64) json.Number {
+	return json.Number(fmt.Sprintf("%.6f", f))
+}
+
 // writeHuman emits the labeled, gray-on-labels human format. The final
-// CRU value gets bolded; it's the number the user came for.
+// CRU row gets both label and value bolded: it's the number the user
+// came for, and the bold label echoes the bold value.
 func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, factor, mult, share, score float64) {
 	rows := []struct {
 		label string
@@ -303,11 +315,14 @@ func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, fac
 	}
 	for _, r := range rows {
 		padded := r.label + strings.Repeat(" ", width-len(r.label))
+		label := colorize(padded)
 		value := r.value
 		if r.bold {
+			// CRU row: bold label (uncolored) + bold value.
+			label = bold(padded)
 			value = bold(value)
 		}
-		fmt.Fprintf(w, "%s  %s\n", colorize(padded), value)
+		fmt.Fprintf(w, "%s  %s\n", label, value)
 	}
 }
 

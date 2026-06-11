@@ -74,8 +74,8 @@ func TestEmitBare(t *testing.T) {
 	var out bytes.Buffer
 	emit(&out, 100, 85, cru.RiskLow, false, false)
 	got := strings.TrimSpace(out.String())
-	if got != "1.536" {
-		t.Errorf("bare output = %q, want %q", got, "1.536")
+	if got != "1.536003" {
+		t.Errorf("bare output = %q, want %q", got, "1.536003")
 	}
 }
 
@@ -86,17 +86,30 @@ func TestEmitJSON(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &obj); err != nil {
 		t.Fatalf("invalid JSON: %v", err)
 	}
-	wantKeys := []string{"total", "owned", "ownership_share", "size", "size_factor", "risk", "risk_multiplier", "cru"}
+	wantKeys := []string{"total_lines", "owned_lines", "ownership_share", "size_label", "size_factor", "risk_label", "risk_multiplier", "cru"}
 	for _, k := range wantKeys {
 		if _, ok := obj[k]; !ok {
 			t.Errorf("JSON missing key %q; got %v", k, obj)
 		}
 	}
-	if obj["risk"] != "medium" {
-		t.Errorf("risk = %v, want medium", obj["risk"])
+	if obj["risk_label"] != "medium" {
+		t.Errorf("risk_label = %v, want medium", obj["risk_label"])
 	}
-	if obj["total"].(float64) != 100 {
-		t.Errorf("total = %v, want 100", obj["total"])
+	if obj["total_lines"].(float64) != 100 {
+		t.Errorf("total_lines = %v, want 100", obj["total_lines"])
+	}
+	// All float fields should be 6-decimal strings as numbers, never
+	// 14-digit float-noise representations. size_factor for L = 1.807063,
+	// ownership_share = 0.850000 (trailing zeros preserved by %.6f).
+	got := out.String()
+	if !strings.Contains(got, "1.807063") {
+		t.Errorf("expected 6-decimal size_factor 1.807063 in JSON, got %q", got)
+	}
+	if !strings.Contains(got, "0.850000") {
+		t.Errorf("expected 6-decimal ownership_share 0.850000 in JSON, got %q", got)
+	}
+	if strings.Contains(got, "0.85,") || strings.Contains(got, ":2,") {
+		t.Errorf("JSON has bare float (no .6 padding), got %q", got)
 	}
 }
 
@@ -139,8 +152,9 @@ func TestRunOne(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("exit = %d, want 0; stderr=%s", code, stderr.String())
 	}
-	if !strings.Contains(stdout.String(), "1.536") {
-		t.Errorf("expected 1.536 in output, got %q", stdout.String())
+	// bytes.Buffer triggers bare (non-TTY) output, which is 6 decimals.
+	if !strings.Contains(stdout.String(), "1.536003") {
+		t.Errorf("expected 1.536003 in output, got %q", stdout.String())
 	}
 }
 
@@ -269,7 +283,7 @@ func TestRunBatchBare(t *testing.T) {
 		t.Fatalf("exit = %d, want 0; stderr=%s", code, stderr.String())
 	}
 	lines := strings.Split(strings.TrimSpace(stdout.String()), "\n")
-	want := []string{"1.536", "3.065", "4.330"}
+	want := []string{"1.536003", "3.065154", "4.330209"}
 	if len(lines) != len(want) {
 		t.Fatalf("got %d lines, want %d: %v", len(lines), len(want), lines)
 	}
