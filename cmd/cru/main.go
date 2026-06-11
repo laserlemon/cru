@@ -289,8 +289,9 @@ func num6(f float64) json.Number {
 }
 
 // writeHuman emits the labeled, gray-on-labels human format. The final
-// CRU row gets both label and value bolded: it's the number the user
-// came for, and the bold label echoes the bold value.
+// CRU row gets a bold-gray label and a bold value: it's the number the
+// user came for, and bolding draws the eye without breaking the gray
+// label column.
 func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, factor, mult, share, score float64) {
 	rows := []struct {
 		label string
@@ -318,8 +319,8 @@ func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, fac
 		label := colorize(padded)
 		value := r.value
 		if r.bold {
-			// CRU row: bold label (uncolored) + bold value.
-			label = bold(padded)
+			// CRU row: bold-gray label + bold value.
+			label = boldGray(padded)
 			value = bold(value)
 		}
 		fmt.Fprintf(w, "%s  %s\n", label, value)

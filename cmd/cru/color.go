@@ -25,3 +25,13 @@ func bold(s string) string {
 	}
 	return "\x1b[1m" + s + "\x1b[0m"
 }
+
+// boldGray combines bold and gray into a single escape so the styles
+// stack. Nesting bold(colorize(s)) doesn't work because the inner reset
+// (\x1b[0m) clears bold before the outer wrapper can apply it.
+func boldGray(s string) string {
+	if os.Getenv("NO_COLOR") != "" {
+		return s
+	}
+	return "\x1b[1;90m" + s + "\x1b[0m"
+}

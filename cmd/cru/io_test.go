@@ -92,3 +92,20 @@ func TestBold(t *testing.T) {
 		}
 	})
 }
+
+func TestBoldGray(t *testing.T) {
+	t.Run("default bold gray", func(t *testing.T) {
+		t.Setenv("NO_COLOR", "")
+		got := boldGray("foo")
+		if got != "\x1b[1;90mfoo\x1b[0m" {
+			t.Errorf("boldGray = %q, want ANSI-wrapped", got)
+		}
+	})
+	t.Run("NO_COLOR strips", func(t *testing.T) {
+		t.Setenv("NO_COLOR", "1")
+		got := boldGray("foo")
+		if got != "foo" {
+			t.Errorf("boldGray with NO_COLOR = %q, want plain", got)
+		}
+	})
+}
