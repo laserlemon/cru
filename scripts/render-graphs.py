@@ -34,6 +34,18 @@ plot-rendering convenience; if cru.go changes, update both.
 
 from __future__ import annotations
 
+# Determinism: matplotlib hashes object dictkeys (clip paths, markers) into
+# SVG element ids. Both the salt (set below in apply_theme) and Python's hash
+# seed must be fixed for byte-stable output across runs. SOURCE_DATE_EPOCH
+# pins the metadata timestamp matplotlib stamps into every SVG. Without these,
+# every run produces noisy diffs even when nothing visual changed.
+import os, sys
+if os.environ.get("CRU_RENDER_DETERMINISTIC") != "1":
+    os.environ["PYTHONHASHSEED"] = "0"
+    os.environ["SOURCE_DATE_EPOCH"] = "1700000000"
+    os.environ["CRU_RENDER_DETERMINISTIC"] = "1"
+    os.execvp(sys.executable, [sys.executable, *sys.argv])
+
 import math
 from dataclasses import dataclass
 from pathlib import Path
@@ -149,6 +161,9 @@ def apply_theme(theme: Theme):
         "savefig.dpi": 200,
         "savefig.bbox": "tight",
         "savefig.pad_inches": 0.15,
+        # Deterministic clip-path IDs across runs (default seeds from a UUID
+        # and produces noisy diffs even when nothing visual changed).
+        "svg.hashsalt": "cru",
     })
 
 

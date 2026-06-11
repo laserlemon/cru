@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-06-11T20:43:26.189459</dc:date>
+    <dc:date>2023-11-14T22:13:20+00:00</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -607,7 +607,7 @@ z
    </g>
    <g id="FillBetweenPolyCollection_1">
     <defs>
-     <path id="m2db5246830" d="M 13.822188 -37.65625 
+     <path id="m91afdbf8a9" d="M 13.822188 -37.65625 
 L 13.822188 -37.65625 
 L 14.101327 -181.706061 
 L 14.380467 -232.507155 
@@ -4612,8 +4612,8 @@ L 13.822188 -37.65625
 z
 "/>
     </defs>
-    <g clip-path="url(#p0ca77eb44d)">
-     <use xlink:href="#m2db5246830" x="0" y="292.39225" style="fill: #58a6ff; fill-opacity: 0.22"/>
+    <g clip-path="url(#pd506e56083)">
+     <use xlink:href="#m91afdbf8a9" x="0" y="292.39225" style="fill: #58a6ff; fill-opacity: 0.22"/>
     </g>
    </g>
    <g id="line2d_8">
@@ -4678,7 +4678,7 @@ L 460.724639 252.921974
 L 542.791672 253.3864 
 L 571.822188 253.509384 
 L 571.822188 253.509384 
-" clip-path="url(#p0ca77eb44d)" style="fill: none; stroke: #58a6ff; stroke-width: 2.2; stroke-linecap: square"/>
+" clip-path="url(#pd506e56083)" style="fill: none; stroke: #58a6ff; stroke-width: 2.2; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
     <path d="M 13.822188 254.736 
@@ -4688,7 +4688,7 @@ L 571.822188 254.736
    <g id="line2d_9">
     <path d="M 55.751296 254.736 
 L 55.751296 10.8 
-" clip-path="url(#p0ca77eb44d)" style="fill: none; stroke-dasharray: 1,1.65; stroke-dashoffset: 0; stroke: #9198a1; stroke-opacity: 0.9"/>
+" clip-path="url(#pd506e56083)" style="fill: none; stroke-dasharray: 1,1.65; stroke-dashoffset: 0; stroke: #9198a1; stroke-opacity: 0.9"/>
    </g>
    <g id="text_9">
     <!--   median = 45 -->
@@ -4756,7 +4756,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p0ca77eb44d">
+  <clipPath id="pd506e56083">
    <rect x="13.822188" y="10.8" width="558" height="243.936"/>
   </clipPath>
  </defs>
