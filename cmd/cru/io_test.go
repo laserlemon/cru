@@ -75,3 +75,20 @@ func TestColorize(t *testing.T) {
 		}
 	})
 }
+
+func TestBold(t *testing.T) {
+	t.Run("default bold", func(t *testing.T) {
+		t.Setenv("NO_COLOR", "")
+		got := bold("foo")
+		if got != "\x1b[1mfoo\x1b[0m" {
+			t.Errorf("bold = %q, want ANSI-wrapped", got)
+		}
+	})
+	t.Run("NO_COLOR strips", func(t *testing.T) {
+		t.Setenv("NO_COLOR", "1")
+		got := bold("foo")
+		if got != "foo" {
+			t.Errorf("bold with NO_COLOR = %q, want plain", got)
+		}
+	})
+}

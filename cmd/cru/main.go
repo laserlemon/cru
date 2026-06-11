@@ -277,20 +277,22 @@ func emit(w io.Writer, total, owned int, risk cru.Risk, jsonOut, decorate bool) 
 	}
 }
 
-// writeHuman emits the labeled, gray-on-labels human format.
+// writeHuman emits the labeled, gray-on-labels human format. The final
+// CRU value gets bolded; it's the number the user came for.
 func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, factor, mult, share, score float64) {
 	rows := []struct {
 		label string
 		value string
+		bold  bool
 	}{
-		{"Total LOC", strconv.Itoa(total)},
-		{"Size", size.String()},
-		{"Size factor", fmt.Sprintf("%.3f", factor)},
-		{"Owned LOC", strconv.Itoa(owned)},
-		{"Ownership share", fmt.Sprintf("%.3f", share)},
-		{"Risk", risk.String()},
-		{"Risk multiplier", fmt.Sprintf("%.3f", mult)},
-		{"CRU", fmt.Sprintf("%.3f", score)},
+		{label: "Total LOC", value: strconv.Itoa(total)},
+		{label: "Size", value: size.String()},
+		{label: "Size factor", value: fmt.Sprintf("%.3f", factor)},
+		{label: "Owned LOC", value: strconv.Itoa(owned)},
+		{label: "Ownership share", value: fmt.Sprintf("%.3f", share)},
+		{label: "Risk", value: risk.String()},
+		{label: "Risk multiplier", value: fmt.Sprintf("%.3f", mult)},
+		{label: "CRU", value: fmt.Sprintf("%.3f", score), bold: true},
 	}
 	// Right-pad labels to the longest one for column alignment.
 	width := 0
@@ -301,7 +303,11 @@ func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, fac
 	}
 	for _, r := range rows {
 		padded := r.label + strings.Repeat(" ", width-len(r.label))
-		fmt.Fprintf(w, "%s  %s\n", colorize(padded), r.value)
+		value := r.value
+		if r.bold {
+			value = bold(value)
+		}
+		fmt.Fprintf(w, "%s  %s\n", colorize(padded), value)
 	}
 }
 
