@@ -219,7 +219,7 @@ distribution:
 
 ### Building the size factor, one axis at a time
 
-The buckets are the target. The anchor is M: a typical pull request
+The size factor is built backward from the buckets. The anchor is M: a typical pull request
 should score exactly 1.0, so the median of the M bucket lands on 1.0
 by construction. From there, each step up or down the shirt-size scale
 doubles or halves the size factor:
