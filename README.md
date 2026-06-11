@@ -53,8 +53,7 @@ The t-shirt scale (XS, S, M, L, XL) is post-hoc labeling for display.
 Each step up the scale corresponds to a doubling of the size factor,
 but the underlying number is continuous, not bucketed.
 
-For the full derivation, see [🤓 For the math nerds…](#-for-the-math-nerds)
-at the bottom of this README.
+For more details, see the [size factor derivation](#-for-the-math-nerds) below.
 
 ### Ownership share
 
