@@ -155,7 +155,7 @@ func parseScoring(args []string) (total, owned int, risk cru.Risk, err error) {
 			// Surface as an arg-2 problem: the user gave us
 			// something that's neither a valid int nor a valid
 			// risk label.
-			return 0, 0, nil, fmt.Errorf("second arg must be owned (int) or risk (low|medium|high); got %q", args[1])
+			return 0, 0, nil, fmt.Errorf("second arg must be owned (int) or risk (low|medium|high or l|m|h); got %q", args[1])
 		}
 		return total, owned, r, nil
 	case 3:
@@ -189,17 +189,18 @@ func parsePositiveInt(s, name string) (int, error) {
 	return n, nil
 }
 
-// parseRisk maps a CLI label to a cru.Risk constant.
+// parseRisk maps a CLI label to a cru.Risk constant. Accepts the full
+// tier name or its first letter, case-insensitive.
 func parseRisk(s string) (cru.Risk, error) {
 	switch strings.ToLower(s) {
-	case "low":
+	case "low", "l":
 		return cru.RiskLow, nil
-	case "medium", "med":
+	case "medium", "m":
 		return cru.RiskMedium, nil
-	case "high":
+	case "high", "h":
 		return cru.RiskHigh, nil
 	}
-	return nil, fmt.Errorf("risk must be one of low / medium / high; got %q", s)
+	return nil, fmt.Errorf("risk must be one of low / medium / high (or l / m / h); got %q", s)
 }
 
 // emit writes a single scoring's output in the appropriate format.
@@ -275,7 +276,7 @@ const usage = `Usage: cru <total> [owned] [risk]
 
   total  pull request line count (additions + deletions), required
   owned  reviewer-owned lines (defaults to total: full ownership)
-  risk   one of low / medium / high (defaults to low)
+  risk   low / medium / high (or l / m / h); defaults to low
 
 Flags:
   --json  emit a JSON object per scoring (NDJSON in batch mode)
@@ -288,8 +289,8 @@ are skipped.
 Examples:
   cru 100              # 100-line PR, fully owned, low risk
   cru 100 85           # 100-line PR, 85 lines owned, low risk
-  cru 100 high         # 100-line PR, fully owned, high risk
-  cru 100 85 medium    # everything spelled out
+  cru 100 h            # 100-line PR, fully owned, high risk
+  cru 100 85 m         # 100-line PR, 85 owned, medium risk
   cru 100 --json       # structured output
   cat prs.txt | cru    # bulk score, one per line
 `
