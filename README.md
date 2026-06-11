@@ -197,18 +197,18 @@ the line that cuts the pull requests in half: as many to its left as
 to its right. It sits at 45 lines.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-linear-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-linear-light.png">
-  <img alt="The locked log-normal distribution of pull request sizes on a linear x-axis. Long, flat tail. The median sits at 45 lines." src="/docs/img/distribution-linear-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-linear-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-linear-light.svg">
+  <img alt="The locked log-normal distribution of pull request sizes on a linear x-axis. Long, flat tail. The median sits at 45 lines." src="/docs/img/distribution-linear-dark.svg">
 </picture>
 
 Put the x-axis on a log scale and the cliff smooths into a bell shape
 with the full range of pull request sizes in view:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-log-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-log-light.png">
-  <img alt="The same log-normal distribution with a log-scaled x-axis. The shape is bell-like and the median at 45 lines now sits where the eye expects." src="/docs/img/distribution-log-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/distribution-log-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/distribution-log-light.svg">
+  <img alt="The same log-normal distribution with a log-scaled x-axis. The shape is bell-like and the median at 45 lines now sits where the eye expects." src="/docs/img/distribution-log-dark.svg">
 </picture>
 
 The parameters are `μ = 3.808551` and `σ = 1.802600`, fit from 233,806
@@ -228,18 +228,18 @@ On a linear x-axis the quintile boundaries crowd into the left third
 of the chart, with XL claiming everything to the right:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-linear-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-linear-light.png">
-  <img alt="Five equal-mass quintiles on a linear x-axis. XS, S, and M crowd the left edge; XL covers most of the visible range." src="/docs/img/quintiles-linear-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-linear-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-linear-light.svg">
+  <img alt="Five equal-mass quintiles on a linear x-axis. XS, S, and M crowd the left edge; XL covers most of the visible range." src="/docs/img/quintiles-linear-dark.svg">
 </picture>
 
 Switch to a log x-axis and the bands fan out more evenly across the
 distribution:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-log-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-log-light.png">
-  <img alt="The same five quintiles on a log-scaled x-axis. The bands now spread out more evenly across the distribution." src="/docs/img/quintiles-log-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/quintiles-log-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/quintiles-log-light.svg">
+  <img alt="The same five quintiles on a log-scaled x-axis. The bands now spread out more evenly across the distribution." src="/docs/img/quintiles-log-dark.svg">
 </picture>
 
 ### Building the size factor, one axis at a time
@@ -273,9 +273,9 @@ itself. On a linear x-axis the XS, S, and M dots
 all crowd together on the left edge:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-linear-light.png">
-  <img alt="Step 1: linear x-axis (lines changed), linear size factor y-axis. Five colored dots at each bucket median, labeled with their target doubling factor: 0.25, 0.5, 1, 2, 4. The small-bucket dots all crowd against the left edge while XL drifts far to the right." src="/docs/img/derivation-frame1-linear-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-linear-light.svg">
+  <img alt="Step 1: linear x-axis (lines changed), linear size factor y-axis. Five colored dots at each bucket median, labeled with their target doubling factor: 0.25, 0.5, 1, 2, 4. The small-bucket dots all crowd against the left edge while XL drifts far to the right." src="/docs/img/derivation-frame1-linear-dark.svg">
 </picture>
 
 What function perfectly connects all five dots? Hard to tell with the
@@ -286,9 +286,9 @@ and once we find the view where that happens, we have the formula.
 Same dots, log x-axis. They spread out across the chart:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-light.png">
-  <img alt="Step 1 with a log x-axis: the five dots now spread evenly across the chart." src="/docs/img/derivation-frame1-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-light.svg">
+  <img alt="Step 1 with a log x-axis: the five dots now spread evenly across the chart." src="/docs/img/derivation-frame1-dark.svg">
 </picture>
 
 Switching the x-axis from line count to percentile evens the spacing.
@@ -297,9 +297,9 @@ and 90th percentile, so the dots are evenly distributed across the
 chart:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame2-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame2-light.png">
-  <img alt="Step 2: x-axis switched to percentile. Same five dots, now evenly spaced at p10, p30, p50, p70, p90." src="/docs/img/derivation-frame2-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame2-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame2-light.svg">
+  <img alt="Step 2: x-axis switched to percentile. Same five dots, now evenly spaced at p10, p30, p50, p70, p90." src="/docs/img/derivation-frame2-dark.svg">
 </picture>
 
 Now switch the y-axis to log₂. The y-ticks are still at the doubling
@@ -307,9 +307,9 @@ levels (0.25, 0.5, 1, 2, 4), but each step is now equispaced because
 they're all powers of two. The dots line up:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame3-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame3-light.png">
-  <img alt="Step 3: y-axis switched to log₂. The size factor ticks are labeled as powers of two (2⁻², 2⁻¹, 2⁰, 2¹, 2²). The five dots now lie on a perfectly straight line." src="/docs/img/derivation-frame3-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame3-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame3-light.svg">
+  <img alt="Step 3: y-axis switched to log₂. The size factor ticks are labeled as powers of two (2⁻², 2⁻¹, 2⁰, 2¹, 2²). The five dots now lie on a perfectly straight line." src="/docs/img/derivation-frame3-dark.svg">
 </picture>
 
 Connect the dots! With the y-axis stretched exactly half a doubling beyond
@@ -318,9 +318,9 @@ entire formula. Every dot is on it. Every 20 percentile points equals
 one doubling of the size factor:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame4-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame4-light.png">
-  <img alt="Step 4: a blue line drawn corner to corner of the chart. The line threads through every dot. The size factor formula, in its native log₂ × percentile space." src="/docs/img/derivation-frame4-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame4-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame4-light.svg">
+  <img alt="Step 4: a blue line drawn corner to corner of the chart. The line threads through every dot. The size factor formula, in its native log₂ × percentile space." src="/docs/img/derivation-frame4-dark.svg">
 </picture>
 
 In one expression:
@@ -344,9 +344,9 @@ percentile, hugging the floor for small pull requests and racing
 upward through M and beyond:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame2-line-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame2-line-light.png">
-  <img alt="Unwinding the y-axis: percentile x, linear size factor y. The straight line is now an exponential curve. Dots still in place." src="/docs/img/derivation-frame2-line-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame2-line-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame2-line-light.svg">
+  <img alt="Unwinding the y-axis: percentile x, linear size factor y. The straight line is now an exponential curve. Dots still in place." src="/docs/img/derivation-frame2-line-dark.svg">
 </picture>
 
 X-axis from percentile back to log LOC: the exponential turns into an
@@ -354,9 +354,9 @@ S-curve. The floor at the left and the approach to the ceiling at the
 right both become visible:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-log-line-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-log-line-light.png">
-  <img alt="Unwinding the x-axis: log-LOC x, linear size factor y. The curve takes on an S-shape with floor at the left, ceiling approached at the right." src="/docs/img/derivation-frame1-log-line-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-log-line-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-log-line-light.svg">
+  <img alt="Unwinding the x-axis: log-LOC x, linear size factor y. The curve takes on an S-shape with floor at the left, ceiling approached at the right." src="/docs/img/derivation-frame1-log-line-dark.svg">
 </picture>
 
 X-axis from log back to linear LOC: the final form. Line count on the
@@ -364,9 +364,9 @@ bottom, size factor on the side, both linear. The same five dots still
 sit on the same five doublings:
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-line-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-linear-line-light.png">
-  <img alt="Unwound completely: linear x and linear y. The size factor curve in its native shape, with the five anchored dots still on their doublings." src="/docs/img/derivation-frame1-linear-line-light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="/docs/img/derivation-frame1-linear-line-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="/docs/img/derivation-frame1-linear-line-light.svg">
+  <img alt="Unwound completely: linear x and linear y. The size factor curve in its native shape, with the five anchored dots still on their doublings." src="/docs/img/derivation-frame1-linear-line-dark.svg">
 </picture>
 
 ### Snapping the cuts to line counts
