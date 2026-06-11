@@ -21,6 +21,20 @@ a GitHub CLI extension.
 go get github.com/laserlemon/cru
 ```
 
+## Quick start
+
+```go
+import "github.com/laserlemon/cru"
+
+// A 250-line pull request, the reviewer owns 100 lines of it, low risk.
+cru.Calculate(250, 100, cru.RiskLow) // => 1.2510...
+
+// The size value carries both its factor and its label.
+sz := cru.CalculateSize(250)
+sz.Factor() // => 3.1275...
+sz.String() // => "XL"
+```
+
 ## CLI
 
 A small `cru` binary ships in `cmd/cru` for one-off scoring without writing
@@ -79,20 +93,6 @@ $ printf "100 85 low\n240\n50 high\n" | cru
 Blank lines and `#`-comment lines are skipped. A bad line writes to stderr
 with the line number and continues; the exit code is 1 if anything failed,
 0 otherwise.
-
-## Quick start
-
-```go
-import "github.com/laserlemon/cru"
-
-// A 250-line pull request, the reviewer owns 100 lines of it, low risk.
-cru.Calculate(250, 100, cru.RiskLow) // => 1.2510...
-
-// The size value carries both its factor and its label.
-sz := cru.CalculateSize(250)
-sz.Factor() // => 3.1275...
-sz.String() // => "XL"
-```
 
 ## Formula
 
