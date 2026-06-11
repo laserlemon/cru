@@ -325,7 +325,7 @@ def render_derivation_log(theme: Theme, outpath: Path, *, with_line: bool):
     ax.set_xlim(1, 10_000)
     ax.set_ylim(*Y_LIM_LINEAR)
     ax.set_xlabel("Lines changed (log scale)")
-    ax.set_ylabel("Size factor")
+    ax.set_ylabel("Size factor (linear)")
     ax.xaxis.set_major_formatter(FuncFormatter(loc_formatter))
     ax.yaxis.set_major_locator(FixedLocator(Y_TICKS_LINEAR))
     if with_line:
@@ -345,7 +345,7 @@ def render_derivation_linear(theme: Theme, outpath: Path, *, with_line: bool):
     ax.set_xlim(0, 600)
     ax.set_ylim(*Y_LIM_LINEAR)
     ax.set_xlabel("Lines changed (linear)")
-    ax.set_ylabel("Size factor")
+    ax.set_ylabel("Size factor (linear)")
     ax.xaxis.set_major_formatter(FuncFormatter(loc_formatter))
     ax.yaxis.set_major_locator(FixedLocator(Y_TICKS_LINEAR))
     if with_line:
@@ -365,7 +365,7 @@ def render_derivation_pct(theme: Theme, outpath: Path, *, with_line: bool):
     ax.set_xlim(0, 100)
     ax.set_ylim(*Y_LIM_LINEAR)
     ax.set_xlabel("Lines changed (percentile)")
-    ax.set_ylabel("Size factor")
+    ax.set_ylabel("Size factor (linear)")
     ax.xaxis.set_major_locator(FixedLocator([0, 20, 40, 60, 80, 100]))
     ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"p{int(v)}"))
     ax.yaxis.set_major_locator(FixedLocator(Y_TICKS_LINEAR))
