@@ -86,7 +86,7 @@ func TestEmitJSON(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &obj); err != nil {
 		t.Fatalf("invalid JSON: %v", err)
 	}
-	wantKeys := []string{"total_lines", "size_label", "size_factor", "owned_lines", "ownership_share", "risk_label", "risk_multiplier", "cru"}
+	wantKeys := []string{"total_lines", "size_label", "size_factor", "owned_lines", "ownership_share", "risk_label", "risk_multiplier", "base_cru", "cru"}
 	for _, k := range wantKeys {
 		if _, ok := obj[k]; !ok {
 			t.Errorf("JSON missing key %q; got %v", k, obj)
@@ -122,6 +122,13 @@ func TestEmitJSON(t *testing.T) {
 	}
 	if !strings.Contains(got, "0.850000") {
 		t.Errorf("expected 6-decimal ownership_share 0.850000 in JSON, got %q", got)
+	}
+	// base_cru = size_factor × risk_multiplier, rounded once from full
+	// precision: 1.8070631… × 2.0 = 3.614125 (NOT 3.614126, which is what
+	// multiplying the displayed 6-decimal factor would give). Rounding the
+	// true product, like cru itself, is what keeps base_cru × share == cru.
+	if !strings.Contains(got, "3.614125") {
+		t.Errorf("expected 6-decimal base_cru 3.614125 in JSON, got %q", got)
 	}
 	if strings.Contains(got, "0.85,") || strings.Contains(got, ":2,") {
 		t.Errorf("JSON has bare float (no .6 padding), got %q", got)

@@ -259,6 +259,7 @@ func emit(w io.Writer, total, owned int, risk cru.Risk, jsonOut, decorate bool) 
 			OwnershipShare json.Number `json:"ownership_share"`
 			RiskLabel      string      `json:"risk_label"`
 			RiskMultiplier json.Number `json:"risk_multiplier"`
+			BaseCRU        json.Number `json:"base_cru"`
 			CRU            json.Number `json:"cru"`
 		}{
 			TotalLines:     total,
@@ -268,6 +269,7 @@ func emit(w io.Writer, total, owned int, risk cru.Risk, jsonOut, decorate bool) 
 			OwnershipShare: num6(share),
 			RiskLabel:      risk.String(),
 			RiskMultiplier: num6(mult),
+			BaseCRU:        num6(factor * mult),
 			CRU:            num6(score),
 		}
 		// Compact NDJSON: one object per line, no trailing whitespace
