@@ -6,6 +6,28 @@ on:
   pull_request:
 
 jobs:
+  lint:
+    name: lint (gofmt)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      # gofmt -s: enforce the standard formatting + simplifications. Fails
+      # with the list of offending files so the fix is obvious (gofmt -s -w .).
+      # No deadcode gate here: cru is an imported library, so deadcode's
+      # "unreachable from main" would false-positive on legit public API.
+      # The 100% coverage gate below already proves there's no dead code.
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -s -l .)
+          if [ -n "$unformatted" ]; then
+            echo "::error::these files need 'gofmt -s -w':"
+            echo "$unformatted"
+            exit 1
+          fi
+
   test:
     name: test (go ${{ matrix.go }})
     runs-on: ubuntu-latest
