@@ -38,6 +38,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime/debug"
 	"strconv"
 	"strings"
 
@@ -48,6 +49,54 @@ func main() {
 	os.Exit(run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr))
 }
 
+// version returns the CLI version string for --version. It reads the
+// module version stamped by the Go toolchain at install time (e.g.
+// "go install github.com/laserlemon/cru/cmd/cru@v1.2.3" yields
+// "v1.2.3"), with no -ldflags plumbing required. For local source
+// builds, where there's no module version, it falls back to the VCS
+// revision (short commit, plus "-dirty" when the tree had uncommitted
+// changes). When neither is available it reports "(devel)".
+func version() string {
+	bi, ok := debug.ReadBuildInfo()
+	return formatVersion(bi, ok)
+}
+
+// formatVersion derives the display string from build info. Split out
+// from version() so the resolution logic is testable without an actual
+// build stamp.
+func formatVersion(bi *debug.BuildInfo, ok bool) string {
+	if !ok || bi == nil {
+		return "(devel)"
+	}
+	// Released/installed at a tagged version: the module version is the
+	// truth. "(devel)" is what the toolchain writes for un-tagged builds,
+	// so treat it as "no module version" and fall through to VCS data.
+	if v := bi.Main.Version; v != "" && v != "(devel)" {
+		return v
+	}
+	// Source build: synthesize from VCS settings the toolchain embeds.
+	var rev string
+	var dirty bool
+	for _, s := range bi.Settings {
+		switch s.Key {
+		case "vcs.revision":
+			rev = s.Value
+		case "vcs.modified":
+			dirty = s.Value == "true"
+		}
+	}
+	if rev == "" {
+		return "(devel)"
+	}
+	if len(rev) > 12 {
+		rev = rev[:12]
+	}
+	if dirty {
+		rev += "-dirty"
+	}
+	return rev
+}
+
 // run is main extracted for testability. Returns the process exit code.
 func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("cru", flag.ContinueOnError)
@@ -56,6 +105,7 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 		fmt.Fprint(stderr, usage)
 	}
 	jsonOut := fs.Bool("json", false, "emit a JSON object per scoring (NDJSON in batch mode)")
+	showVersion := fs.Bool("version", false, "print version and exit")
 
 	// Stdlib flag stops parsing at the first non-flag token, so
 	// "cru 100 --json" would treat --json as a positional. Pre-split
@@ -67,6 +117,14 @@ func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			return 0
 		}
 		return 2
+	}
+
+	// --version short-circuits everything else, including stdin batch
+	// detection: "cru --version" should print and exit even with a pipe
+	// attached.
+	if *showVersion {
+		fmt.Fprintln(stdout, version())
+		return 0
 	}
 
 	// Mode dispatch.
@@ -336,8 +394,9 @@ const usage = `Usage: cru <total> [owned] [risk]
   risk   low / medium / high (or l / m / h); defaults to low
 
 Flags:
-  --json  emit a JSON object per scoring (NDJSON in batch mode)
-  --help  show this help
+  --json     emit a JSON object per scoring (NDJSON in batch mode)
+  --version  print version and exit
+  --help     show this help
 
 Stdin batch: with no positional args and stdin piped in, reads one
 scoring per line (same arg shape). Blank lines and "#"-comment lines

@@ -3,7 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"os"
+	"runtime/debug"
 	"strings"
 	"testing"
 
@@ -250,6 +252,83 @@ func equalSlices(a, b []string) bool {
 		}
 	}
 	return true
+}
+
+// TestRunVersion verifies --version prints to stdout and exits 0,
+// regardless of position and even with a pipe attached to stdin (it must
+// short-circuit batch-mode detection). The exact string depends on the
+// build stamp, so we only assert it's non-empty and single-line here;
+// formatVersion's logic is unit-tested separately.
+func TestRunVersion(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		args  []string
+		stdin io.Reader
+	}{
+		{name: "bare", args: []string{"--version"}, stdin: &bytes.Buffer{}},
+		{name: "single dash", args: []string{"-version"}, stdin: &bytes.Buffer{}},
+		{name: "after positional", args: []string{"100", "--version"}, stdin: &bytes.Buffer{}},
+		{name: "with pipe attached", args: []string{"--version"}, stdin: mustPipeReader(t, "100 85 low\n")},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var stdout, stderr bytes.Buffer
+			code := run(tc.args, tc.stdin, &stdout, &stderr)
+			if code != 0 {
+				t.Fatalf("exit = %d, want 0; stderr=%s", code, stderr.String())
+			}
+			out := strings.TrimSpace(stdout.String())
+			if out == "" {
+				t.Errorf("--version printed nothing to stdout")
+			}
+			if strings.Contains(out, "\n") {
+				t.Errorf("--version output should be a single line, got %q", out)
+			}
+			if stderr.Len() != 0 {
+				t.Errorf("--version wrote to stderr: %q", stderr.String())
+			}
+			// It must not score: no CRU number leaks into version output.
+			if strings.Contains(stdout.String(), "1.536") {
+				t.Errorf("--version emitted a scoring instead of a version: %q", stdout.String())
+			}
+		})
+	}
+}
+
+// TestFormatVersion pins the build-info resolution: a tagged module
+// version wins; otherwise fall back to the short VCS revision (+ -dirty);
+// and "(devel)" when nothing is available.
+func TestFormatVersion(t *testing.T) {
+	bi := func(mainVer string, settings ...debug.BuildSetting) *debug.BuildInfo {
+		b := &debug.BuildInfo{}
+		b.Main.Version = mainVer
+		b.Settings = settings
+		return b
+	}
+	rev := debug.BuildSetting{Key: "vcs.revision", Value: "0123456789abcdef0123456789abcdef01234567"}
+	clean := debug.BuildSetting{Key: "vcs.modified", Value: "false"}
+	dirty := debug.BuildSetting{Key: "vcs.modified", Value: "true"}
+
+	for _, tc := range []struct {
+		name string
+		bi   *debug.BuildInfo
+		ok   bool
+		want string
+	}{
+		{name: "no build info", bi: nil, ok: false, want: "(devel)"},
+		{name: "nil despite ok", bi: nil, ok: true, want: "(devel)"},
+		{name: "tagged module version", bi: bi("v1.4.0"), ok: true, want: "v1.4.0"},
+		{name: "tagged wins over vcs", bi: bi("v2.0.0", rev, dirty), ok: true, want: "v2.0.0"},
+		{name: "devel falls back to clean revision", bi: bi("(devel)", rev, clean), ok: true, want: "0123456789ab"},
+		{name: "empty version falls back to revision", bi: bi("", rev, clean), ok: true, want: "0123456789ab"},
+		{name: "dirty revision suffixed", bi: bi("(devel)", rev, dirty), ok: true, want: "0123456789ab-dirty"},
+		{name: "devel with no vcs data", bi: bi("(devel)"), ok: true, want: "(devel)"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := formatVersion(tc.bi, tc.ok); got != tc.want {
+				t.Errorf("formatVersion = %q, want %q", got, tc.want)
+			}
+		})
+	}
 }
 
 func TestRunBadArg(t *testing.T) {
