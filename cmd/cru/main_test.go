@@ -134,10 +134,10 @@ func TestEmitHuman(t *testing.T) {
 	emit(&out, 100, 85, cru.RiskLow, false, true)
 	got := out.String()
 	for _, want := range []string{
-		"Total LOC        100",
+		"Total lines      100",
 		"Size             L",
 		"Size factor      1.807",
-		"Owned LOC        85",
+		"Owned lines      85",
 		"Ownership share  0.850",
 		"Risk             low",
 		"Risk multiplier  1.000",
@@ -149,7 +149,7 @@ func TestEmitHuman(t *testing.T) {
 	}
 	// Verify order.
 	lines := strings.Split(strings.TrimSpace(got), "\n")
-	wantLabels := []string{"Total LOC", "Size ", "Size factor", "Owned LOC", "Ownership share", "Risk ", "Risk multiplier", "CRU"}
+	wantLabels := []string{"Total lines", "Size ", "Size factor", "Owned lines", "Ownership share", "Risk ", "Risk multiplier", "CRU"}
 	if len(lines) != len(wantLabels) {
 		t.Fatalf("expected %d lines, got %d", len(wantLabels), len(lines))
 	}

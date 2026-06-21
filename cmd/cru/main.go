@@ -298,10 +298,10 @@ func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, fac
 		value string
 		bold  bool
 	}{
-		{label: "Total LOC", value: strconv.Itoa(total)},
+		{label: "Total lines", value: strconv.Itoa(total)},
 		{label: "Size", value: size.String()},
 		{label: "Size factor", value: fmt.Sprintf("%.3f", factor)},
-		{label: "Owned LOC", value: strconv.Itoa(owned)},
+		{label: "Owned lines", value: strconv.Itoa(owned)},
 		{label: "Ownership share", value: fmt.Sprintf("%.3f", share)},
 		{label: "Risk", value: risk.String()},
 		{label: "Risk multiplier", value: fmt.Sprintf("%.3f", mult)},

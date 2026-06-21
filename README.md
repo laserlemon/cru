@@ -48,10 +48,10 @@ Then:
 
 ```bash
 $ cru 100 85 medium
-Total LOC        100
+Total lines      100
 Size             L
 Size factor      1.807
-Owned LOC        85
+Owned lines      85
 Ownership share  0.850
 Risk             medium
 Risk multiplier  2.000
