@@ -387,16 +387,27 @@ func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, fac
 	}
 }
 
-const usage = `Usage: cru <total> [owned] [risk]
+const usage = `cru scores the code-review effort of a pull request as a Code Review
+Unit (CRU): size factor × ownership share × risk multiplier.
+
+Usage: cru <total> [owned] [risk]
 
   total  pull request line count (additions + deletions), required
   owned  reviewer-owned lines (defaults to total: full ownership)
   risk   low / medium / high (or l / m / h); defaults to low
 
+The second positional is type-detected: an integer is owned, a word is
+risk, so "cru 100 85" and "cru 100 high" both do what they look like.
+
 Flags:
   --json     emit a JSON object per scoring (NDJSON in batch mode)
   --version  print version and exit
   --help     show this help
+
+Output adapts to context:
+  TTY      labeled rows, score on the last line (CRU)
+  piped    the bare score alone, 6 decimals, for scripting
+  --json   a structured object with every input and derived value
 
 Stdin batch: with no positional args and stdin piped in, reads one
 scoring per line (same arg shape). Blank lines and "#"-comment lines
