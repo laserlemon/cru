@@ -310,14 +310,14 @@ func emit(w io.Writer, total, owned int, risk cru.Risk, jsonOut, decorate bool) 
 		// which leaks 14+ digits when the rounded value can't be
 		// exactly represented in float64.
 		obj := struct {
-			TotalLines     int         `json:"total_lines"`
-			SizeLabel      string      `json:"size_label"`
-			SizeFactor     json.Number `json:"size_factor"`
-			OwnedLines     int         `json:"owned_lines"`
-			OwnershipShare json.Number `json:"ownership_share"`
-			RiskLabel      string      `json:"risk_label"`
-			RiskMultiplier json.Number `json:"risk_multiplier"`
-			BaseCRU        json.Number `json:"base_cru"`
+			TotalLines     int         `json:"totalLines"`
+			SizeLabel      string      `json:"sizeLabel"`
+			SizeFactor     json.Number `json:"sizeFactor"`
+			OwnedLines     int         `json:"ownedLines"`
+			OwnershipShare json.Number `json:"ownershipShare"`
+			RiskLabel      string      `json:"riskLabel"`
+			RiskMultiplier json.Number `json:"riskMultiplier"`
+			BaseCRU        json.Number `json:"baseCru"`
 			CRU            json.Number `json:"cru"`
 		}{
 			TotalLines:     total,

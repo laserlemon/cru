@@ -88,7 +88,7 @@ func TestEmitJSON(t *testing.T) {
 	if err := json.Unmarshal(out.Bytes(), &obj); err != nil {
 		t.Fatalf("invalid JSON: %v", err)
 	}
-	wantKeys := []string{"total_lines", "size_label", "size_factor", "owned_lines", "ownership_share", "risk_label", "risk_multiplier", "base_cru", "cru"}
+	wantKeys := []string{"totalLines", "sizeLabel", "sizeFactor", "ownedLines", "ownershipShare", "riskLabel", "riskMultiplier", "baseCru", "cru"}
 	for _, k := range wantKeys {
 		if _, ok := obj[k]; !ok {
 			t.Errorf("JSON missing key %q; got %v", k, obj)
@@ -109,28 +109,28 @@ func TestEmitJSON(t *testing.T) {
 		}
 		prev = idx
 	}
-	if obj["risk_label"] != "medium" {
-		t.Errorf("risk_label = %v, want medium", obj["risk_label"])
+	if obj["riskLabel"] != "medium" {
+		t.Errorf("riskLabel = %v, want medium", obj["riskLabel"])
 	}
-	if obj["total_lines"].(float64) != 100 {
-		t.Errorf("total_lines = %v, want 100", obj["total_lines"])
+	if obj["totalLines"].(float64) != 100 {
+		t.Errorf("totalLines = %v, want 100", obj["totalLines"])
 	}
 	// All float fields should be 6-decimal strings as numbers, never
-	// 14-digit float-noise representations. size_factor for L = 1.807063,
-	// ownership_share = 0.850000 (trailing zeros preserved by %.6f).
+	// 14-digit float-noise representations. sizeFactor for L = 1.807063,
+	// ownershipShare = 0.850000 (trailing zeros preserved by %.6f).
 	got := out.String()
 	if !strings.Contains(got, "1.807063") {
-		t.Errorf("expected 6-decimal size_factor 1.807063 in JSON, got %q", got)
+		t.Errorf("expected 6-decimal sizeFactor 1.807063 in JSON, got %q", got)
 	}
 	if !strings.Contains(got, "0.850000") {
-		t.Errorf("expected 6-decimal ownership_share 0.850000 in JSON, got %q", got)
+		t.Errorf("expected 6-decimal ownershipShare 0.850000 in JSON, got %q", got)
 	}
-	// base_cru = size_factor × risk_multiplier, rounded once from full
+	// baseCru = sizeFactor × riskMultiplier, rounded once from full
 	// precision: 1.8070631… × 2.0 = 3.614125 (NOT 3.614126, which is what
 	// multiplying the displayed 6-decimal factor would give). Rounding the
-	// true product, like cru itself, is what keeps base_cru × share == cru.
+	// true product, like cru itself, is what keeps baseCru × share == cru.
 	if !strings.Contains(got, "3.614125") {
-		t.Errorf("expected 6-decimal base_cru 3.614125 in JSON, got %q", got)
+		t.Errorf("expected 6-decimal baseCru 3.614125 in JSON, got %q", got)
 	}
 	if strings.Contains(got, "0.85,") || strings.Contains(got, ":2,") {
 		t.Errorf("JSON has bare float (no .6 padding), got %q", got)

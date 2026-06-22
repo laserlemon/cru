@@ -64,21 +64,21 @@ For scripts and pipelines, `--json` emits one compact object per measurement
 ```bash
 $ cru 100 85 medium --json | jq
 {
-  "total_lines": 100,
-  "size_label": "L",
-  "size_factor": 1.807063,
-  "owned_lines": 85,
-  "ownership_share": 0.850000,
-  "risk_label": "medium",
-  "risk_multiplier": 2.000000,
-  "base_cru": 3.614125,
+  "totalLines": 100,
+  "sizeLabel": "L",
+  "sizeFactor": 1.807063,
+  "ownedLines": 85,
+  "ownershipShare": 0.850000,
+  "riskLabel": "medium",
+  "riskMultiplier": 2.000000,
+  "baseCru": 3.614125,
   "cru": 3.072006
 }
 ```
 
 Every float is pinned to six decimals, so downstream `==` comparisons stay
-stable. `base_cru` is `size_factor × risk_multiplier`, the cost at full
-ownership; `cru` scales that by `ownership_share` for the final measurement.
+stable. `baseCru` is `sizeFactor × riskMultiplier`, the cost at full
+ownership; `cru` scales that by `ownershipShare` for the final measurement.
 
 Run `cru --help` for arg shapes, flags, and stdin batch mode.
 
