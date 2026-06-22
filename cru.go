@@ -1,5 +1,5 @@
 // Package cru is the canonical implementation of the Code Review Unit (CRU)
-// formula. Import this package to score pull requests from your own Go
+// formula. Import this package to measure pull requests from your own Go
 // programs without pulling in the gh CLI extension wrapper.
 //
 // Quick start:
@@ -88,7 +88,7 @@ func CalculateSize(lines int) Size {
 	// F(L) = Φ((ln L − μ) / σ) is the pull request's percentile rank in
 	// the locked baseline distribution of merged pull request sizes. The
 	// size factor is a doubling-rescaled function of that rank, anchored
-	// so that the median pull request (F = 0.5) scores exactly 1.
+	// so that the median pull request (F = 0.5) measures exactly 1.
 	z := (math.Log(float64(lines)) - Mu) / Sigma
 	f := 0.5 * (1 + math.Erf(z/math.Sqrt2))
 	return Size(math.Pow(2, sizeRange*f-sizeRange/2))

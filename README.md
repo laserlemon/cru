@@ -37,7 +37,7 @@ sz.String() // => "XL"
 
 ## CLI
 
-A small `cru` binary ships in `cmd/cru` for one-off scoring without writing
+A small `cru` binary ships in `cmd/cru` for one-off measuring without writing
 any Go:
 
 ```bash
@@ -58,7 +58,7 @@ Risk multiplier  2.000
 CRU              3.072
 ```
 
-For scripts and pipelines, `--json` emits one compact object per scoring
+For scripts and pipelines, `--json` emits one compact object per measurement
 (NDJSON in batch mode). Pipe through `jq` to pretty-print:
 
 ```bash
@@ -78,7 +78,7 @@ $ cru 100 85 medium --json | jq
 
 Every float is pinned to six decimals, so downstream `==` comparisons stay
 stable. `base_cru` is `size_factor × risk_multiplier`, the cost at full
-ownership; `cru` scales that by `ownership_share` for the final score.
+ownership; `cru` scales that by `ownership_share` for the final measurement.
 
 Run `cru --help` for arg shapes, flags, and stdin batch mode.
 
@@ -267,7 +267,7 @@ distribution:
 ### Building the size factor, one axis at a time
 
 The size factor is built backward from the buckets. The anchor is M: a typical pull request
-should score exactly 1.0, so the median of the M bucket lands on 1.0
+should measure exactly 1.0, so the median of the M bucket lands on 1.0
 by construction. From there, each step up or down the shirt-size scale
 doubles or halves the size factor:
 
@@ -283,7 +283,7 @@ That doubling step is a deliberate choice, not something the data
 demands. It could just as easily be 1.5× per step (gentler) or 3× per
 step (steeper). Doubling is the call I made: each step up the size
 scale feels meaningfully harder to review than the last, without a
-single pull request's score ballooning to unrealistic levels.
+single pull request's measurement ballooning to unrealistic levels.
 
 The size factor is the smooth, continuous function of line count that
 hits all five of those anchors. Everything else (the curve, the floor,
@@ -356,7 +356,7 @@ in the locked distribution. The `5·F − 2.5` rescaling takes a percentile
 in `[0, 1]` and turns it into a log₂ exponent in `[−2.5, +2.5]`, producing
 a natural floor of `2⁻²·⁵ ≈ 0.18` and ceiling of `2²·⁵ ≈ 5.66`. These are
 the smallest and largest possible size factors a pull request can ever
-score.
+produce.
 
 Now unwind the axes back to LOC and linear size factor and watch the
 straight line bend back into a curve.

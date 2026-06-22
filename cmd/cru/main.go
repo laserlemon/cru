@@ -1,4 +1,4 @@
-// Command cru scores a single pull request from positional arguments.
+// Command cru measures a single pull request from positional arguments.
 //
 //	cru <total> [owned] [risk]
 //
@@ -387,7 +387,7 @@ func writeHuman(w io.Writer, total, owned int, risk cru.Risk, size cru.Size, fac
 	}
 }
 
-const usage = `cru scores the code-review effort of a pull request as a Code Review
+const usage = `cru measures the code-review effort of a pull request as a Code Review
 Unit (CRU): size factor × ownership share × risk multiplier.
 
 Usage: cru <total> [owned] [risk]
@@ -405,8 +405,8 @@ Flags:
   --help     show this help
 
 Output adapts to context:
-  TTY      labeled rows, score on the last line (CRU)
-  piped    the bare score alone, 6 decimals, for scripting
+  TTY      labeled rows, the measurement on the last line (CRU)
+  piped    the bare measurement alone, 6 decimals, for scripting
   --json   a structured object with every input and derived value
 
 Stdin batch: with no positional args and stdin piped in, reads one
@@ -419,5 +419,5 @@ Examples:
   cru 100 h            # 100-line PR, fully owned, high risk
   cru 100 85 m         # 100-line PR, 85 owned, medium risk
   cru 100 --json       # structured output
-  cat prs.txt | cru    # bulk score, one per line
+  cat prs.txt | cru    # bulk measure, one per line
 `
