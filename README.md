@@ -46,34 +46,34 @@ go install github.com/laserlemon/cru/cmd/cru@latest
 
 Then:
 
-```bash
+```ansi
 $ cru 100 85 medium
-Total lines      100
-Size             L
-Size factor      1.807
-Owned lines      85
-Ownership share  0.850
-Risk             medium
-Risk multiplier  2.000
-CRU              3.072
+[0;90mTotal lines    [0m  100[0m
+[0;90mSize           [0m  L[0m
+[0;90mSize factor    [0m  1.807[0m
+[0;90mOwned lines    [0m  85[0m
+[0;90mOwnership share[0m  0.850[0m
+[0;90mRisk           [0m  medium[0m
+[0;90mRisk multiplier[0m  2.000[0m
+[0;90;1mCRU            [0m  [0;1m3.072[0m[0m
 ```
 
 For scripts and pipelines, `--json` emits one compact object per measurement
 (NDJSON in batch mode). Pipe through `jq` to pretty-print:
 
-```bash
+```ansi
 $ cru 100 85 medium --json | jq
-{
-  "totalLines": 100,
-  "sizeLabel": "L",
-  "sizeFactor": 1.807063,
-  "ownedLines": 85,
-  "ownershipShare": 0.850000,
-  "riskLabel": "medium",
-  "riskMultiplier": 2.000000,
-  "baseCru": 3.614125,
-  "cru": 3.072006
-}
+[0;1m{[0m[0m
+[0;1m  [0;34;1m"totalLines"[0;1m: [0m100[0;1m,[0m[0m
+[0;1m  [0;34;1m"sizeLabel"[0;1m: [0;32m"L"[0;1m,[0m[0m
+[0;1m  [0;34;1m"sizeFactor"[0;1m: [0m1.807063[0;1m,[0m[0m
+[0;1m  [0;34;1m"ownedLines"[0;1m: [0m85[0;1m,[0m[0m
+[0;1m  [0;34;1m"ownershipShare"[0;1m: [0m0.850000[0;1m,[0m[0m
+[0;1m  [0;34;1m"riskLabel"[0;1m: [0;32m"medium"[0;1m,[0m[0m
+[0;1m  [0;34;1m"riskMultiplier"[0;1m: [0m2.000000[0;1m,[0m[0m
+[0;1m  [0;34;1m"baseCru"[0;1m: [0m3.614125[0;1m,[0m[0m
+[0;1m  [0;34;1m"cru"[0;1m: [0m3.072006[0m
+[0;1m}[0m
 ```
 
 Every float is pinned to six decimals, so downstream `==` comparisons stay
